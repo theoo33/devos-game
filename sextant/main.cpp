@@ -47,42 +47,55 @@ void demo_vga() {
 }
 
 void demo_bochs_8() {
-	EcranBochs vga(640, 400, VBE_MODE::_8);
-
-    vga.init();
-    vga.clear(0);
-
-    // only usefull in 4 or 8 bits modes
-    vga.set_palette(palette_vga);
-    vga.plot_palette(0, 0, 25);
-
-	int offset = 0;
+	ui16_t WIDTH = 640, HEIGHT = 400;
+	EcranBochs vga(WIDTH, HEIGHT, VBE_MODE::_8);
+	const char SPEED = 2;
+	Clavier c;
+	vga.init();
+	vga.clear(0);
+	// only usefull in 4 or 8 bits modes
+	vga.set_palette(palette_vga);
+	vga.plot_palette(0, 0, 25);
+	int x = 0, y = 0;
 	while (true) {
+		if (c.is_pressed(AZERTY::K_Z)) {
+			y -= SPEED;
+			if (y < 0) y += HEIGHT;
+		}
+		if (c.is_pressed(AZERTY::K_Q)) {
+			x -= SPEED;
+			if (x < 0) x += WIDTH;
+		}
+		if (c.is_pressed(AZERTY::K_S)) {
+			y = (y + SPEED) % HEIGHT;
+		}
+		if (c.is_pressed(AZERTY::K_D)) {
+			x = (x + SPEED) % WIDTH;
+		}
 		vga.clear(1);
-		vga.plot_sprite(sprite_data, SPRITE_WIDTH, SPRITE_HEIGHT, offset, 200);
-		offset = (offset+1) % (640);
+		vga.plot_sprite(sprite_data, SPRITE_WIDTH, SPRITE_HEIGHT, x, y);
 		vga.swapBuffer(); // call this after you finish drawing your frame to display it, it avoids screen tearing
 	}
-}
-
-void demo_bochs_32() {
-	EcranBochs vga(640, 400, VBE_MODE::_32);
-
-	vga.init();
-	
-	ui8_t offset = 0;
-	while(true) {
-		
-		for (int y = 0; y < vga.getHeight(); y++) {
-			for (int x = 0; x < vga.getWidth(); x++) {
-				vga.paint(x, y, 
-					(~x << y%3) + offset & y, 
-					~offset * (x & ~y), 
-					offset | (~y < 2 - x % 16));
-			}
-		}
-		++offset;
 	}
+
+	void demo_bochs_32() {
+		EcranBochs vga(640, 400, VBE_MODE::_32);
+
+		vga.init();
+		
+		ui8_t offset = 0;
+		while(true) {
+			
+			for (int y = 0; y < vga.getHeight(); y++) {
+				for (int x = 0; x < vga.getWidth(); x++) {
+					vga.paint(x, y, 
+						(~x << y%3) + offset & y, 
+						~offset * (x & ~y), 
+						offset | (~y < 2 - x % 16));
+				}
+			}
+			++offset;
+		}
 }
 
 extern "C" void Sextant_main(unsigned long magic, unsigned long addr){
