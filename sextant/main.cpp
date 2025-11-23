@@ -25,6 +25,7 @@
 #include <drivers/EcranBochs.h>
 
 #include <sextant/sprite.h>
+#include <Applications/Football/Player.h>
 
 
 extern char __e_kernel,__b_kernel, __b_data, __e_data,  __b_stack, __e_load ;
@@ -51,32 +52,32 @@ void demo_bochs_8() {
 	EcranBochs vga(WIDTH, HEIGHT, VBE_MODE::_8);
 	const char SPEED = 2;
 	Clavier c;
+	Player p1 = Player(0,0,sprite_data);
 	vga.init();
 	vga.clear(0);
 	// only usefull in 4 or 8 bits modes
 	vga.set_palette(palette_vga);
 	vga.plot_palette(0, 0, 25);
-	int x = 0, y = 0;
 	while (true) {
 		if (c.is_pressed(AZERTY::K_Z)) {
-			y -= SPEED;
-			if (y < 0) y += HEIGHT;
+			p1.set_y(p1.get_y()-SPEED);
+			if (p1.get_y() < 0) p1.set_y(p1.get_y()+HEIGHT);
 		}
 		if (c.is_pressed(AZERTY::K_Q)) {
-			x -= SPEED;
-			if (x < 0) x += WIDTH;
+			p1.set_x(p1.get_x()-SPEED);
+			if (p1.get_x() < 0) p1.set_x(p1.get_x()+WIDTH);
 		}
 		if (c.is_pressed(AZERTY::K_S)) {
-			y = (y + SPEED) % HEIGHT;
+			p1.set_y((p1.get_y() + SPEED) % HEIGHT);
 		}
 		if (c.is_pressed(AZERTY::K_D)) {
-			x = (x + SPEED) % WIDTH;
+			p1.set_x((p1.get_x() + SPEED) % WIDTH);
 		}
 		vga.clear(1);
-		vga.plot_sprite(sprite_data, SPRITE_WIDTH, SPRITE_HEIGHT, x, y);
+		vga.plot_sprite(p1.get_data(), SPRITE_WIDTH, SPRITE_HEIGHT, p1.get_x(), p1.get_y());
 		vga.swapBuffer(); // call this after you finish drawing your frame to display it, it avoids screen tearing
 	}
-	}
+}
 
 	void demo_bochs_32() {
 		EcranBochs vga(640, 400, VBE_MODE::_32);
