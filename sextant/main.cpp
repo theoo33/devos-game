@@ -52,25 +52,32 @@ void demo_bochs_8() {
 	EcranBochs vga(WIDTH, HEIGHT, VBE_MODE::_8);
 	const char SPEED = 2;
 	Clavier c;
-	Player p1 = Player(0,0,sprite_data);
+	Player p1 = Player(
+		0,0,sprite_data,
+		AZERTY::K_Z,
+		AZERTY::K_S,
+		AZERTY::K_Q,
+		AZERTY::K_D
+	);
 	vga.init();
 	vga.clear(0);
 	// only usefull in 4 or 8 bits modes
 	vga.set_palette(palette_vga);
 	vga.plot_palette(0, 0, 25);
 	while (true) {
-		if (c.is_pressed(AZERTY::K_Z)) {
+		if (c.is_pressed(p1.UP_KEY)) {
 			p1.set_y(p1.get_y()-SPEED);
 			if (p1.get_y() < 0) p1.set_y(p1.get_y()+HEIGHT);
 		}
-		if (c.is_pressed(AZERTY::K_Q)) {
+		if (c.is_pressed(p1.LEFT_KEY)) {
 			p1.set_x(p1.get_x()-SPEED);
 			if (p1.get_x() < 0) p1.set_x(p1.get_x()+WIDTH);
 		}
-		if (c.is_pressed(AZERTY::K_S)) {
+		if (c.is_pressed(p1.DOWN_KEY)) {
 			p1.set_y((p1.get_y() + SPEED) % HEIGHT);
 		}
-		if (c.is_pressed(AZERTY::K_D)) {
+		if (c.is_pressed(p1.RIGHT_KEY)) {
+			
 			p1.set_x((p1.get_x() + SPEED) % WIDTH);
 		}
 		vga.clear(1);
