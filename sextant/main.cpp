@@ -57,11 +57,64 @@ void demo_bochs_8() {
     vga.plot_palette(0, 0, 25);
 
 	int offset = 0;
+
+	// while (true) {
+		
+	// 	vga.clear(1);
+
+	// }
+
 	while (true) {
 		vga.clear(1);
 		vga.plot_sprite(sprite_data, SPRITE_WIDTH, SPRITE_HEIGHT, offset, 200);
 		offset = (offset+1) % (640);
 		vga.swapBuffer(); // call this after you finish drawing your frame to display it, it avoids screen tearing
+	}
+}
+
+void demo_player(Clavier* clavier) {
+	ui16_t WIDTH = 640, HEIGHT = 400;
+	EcranBochs vga(WIDTH, HEIGHT, VBE_MODE::_8);
+	vga.init();
+    vga.clear(0);
+	int x = 0, y = 0;
+
+	char buffer[256];
+	char *src;
+	const char SPEED = 1;
+
+	while(true) {
+
+		if (clavier->is_pressed(AZERTY::K_Z)) {
+            y -= SPEED;
+            if (y < 0) y += HEIGHT;
+        }
+        if (clavier->is_pressed(AZERTY::K_Q)) {
+            x -= SPEED;
+            if (x < 0) x += WIDTH;
+        }
+        if (clavier->is_pressed(AZERTY::K_S)) {
+            y = (y + SPEED) % HEIGHT;
+        }
+        if (clavier->is_pressed(AZERTY::K_D)) {
+            x = (x + SPEED) % WIDTH;
+        }
+		
+		vga.clear(1);
+		vga.plot_sprite(sprite_data, SPRITE_WIDTH, SPRITE_HEIGHT, x, y);
+
+		// if(clavier->testChar()) {
+		// 	src=clavier->getString();
+
+		// 	for(i=0;i<256-1 && src[i]!='\0';i++)
+		// 		buffer[i]=src[i];
+		// 	buffer[i]='\0';
+
+		// 	for(i=0;buffer[i]!='\0';i++) {
+		// 		if (buffer[i]=='d') offset = (offset+5) % (640);
+		// 	}
+		// }
+		vga.swapBuffer();
 	}
 }
 
@@ -88,6 +141,7 @@ void demo_bochs_32() {
 extern "C" void Sextant_main(unsigned long magic, unsigned long addr){
 	Ecran ecran;
 	Timer timer;
+	Clavier clavier;
 
 	idt_setup();
 	irq_setup();
@@ -115,10 +169,11 @@ extern "C" void Sextant_main(unsigned long magic, unsigned long addr){
 	// initialize pci bus to detect GPU address
 	checkBus(0);
 
+	demo_player(&clavier);
 
 	// demo_vga();
 
-	demo_bochs_8();
+	// demo_bochs_8();
 
 	// demo_bochs_32();
 }
