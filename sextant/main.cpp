@@ -50,10 +50,10 @@ void demo_vga() {
 void demo_bochs_8() {
 	ui16_t WIDTH = 640, HEIGHT = 400;
 	EcranBochs vga(WIDTH, HEIGHT, VBE_MODE::_8);
-	const char SPEED = 2;
+	const char SPEED = 1;
 	Clavier c;
 	Player p1 = Player(
-		0,0,sprite_data,
+		0, 0, sprite_data, SPEED,
 		AZERTY::K_Z,
 		AZERTY::K_S,
 		AZERTY::K_Q,
@@ -64,22 +64,15 @@ void demo_bochs_8() {
 	// only usefull in 4 or 8 bits modes
 	vga.set_palette(palette_vga);
 	vga.plot_palette(0, 0, 25);
+	int frame = 0;
 	while (true) {
-		if (c.is_pressed(p1.UP_KEY)) {
-			p1.set_y(p1.get_y()-SPEED);
-			if (p1.get_y() < 0) p1.set_y(p1.get_y()+HEIGHT);
+		if (p1.is_any_key_pressed()) {
+			if (frame % 3 == 0) {
+				p1.move(WIDTH, HEIGHT);
+	
+			}
 		}
-		if (c.is_pressed(p1.LEFT_KEY)) {
-			p1.set_x(p1.get_x()-SPEED);
-			if (p1.get_x() < 0) p1.set_x(p1.get_x()+WIDTH);
-		}
-		if (c.is_pressed(p1.DOWN_KEY)) {
-			p1.set_y((p1.get_y() + SPEED) % HEIGHT);
-		}
-		if (c.is_pressed(p1.RIGHT_KEY)) {
-			
-			p1.set_x((p1.get_x() + SPEED) % WIDTH);
-		}
+		++frame;
 		vga.clear(1);
 		vga.plot_sprite(p1.get_data(), SPRITE_WIDTH, SPRITE_HEIGHT, p1.get_x(), p1.get_y());
 		vga.swapBuffer(); // call this after you finish drawing your frame to display it, it avoids screen tearing
