@@ -9,15 +9,12 @@ static char leds;
 
 #include "handler_clavier.h"
 #include <hal/fonctionsES.h>
-#include <sextant/Synchronisation/Semaphore/Semaphore.h>
 
 int posBuf=0;
 char buf[256];
 bool modifBuf=false;
 
 bool key_pressed[126];
-
-extern Semaphore keyboard_sem;
 
 int writechar(int sc) {
 	int ch = 0;
@@ -177,7 +174,6 @@ void handler_clavier(int irq) {
 
 	if (c < 0x80) {
 		key_pressed[c] = true;
-		keyboard_sem.V();
 	}
 	else if (c < 0xE0) {
 		key_pressed[c & 0x7F] = false; // mask bit 0 which indicate key up
