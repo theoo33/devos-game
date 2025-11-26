@@ -35,6 +35,7 @@ int wait_current_pos;
 struct uneStruct ready_thread[MAX_THREAD];
 struct uneStructWaiting waiting_thread[MAX_THREAD];
 
+void NullProcess(){	while (1) {}; }
 
 sextant_ret_t sched_subsystem_setup() {
 	int i;
@@ -47,7 +48,7 @@ sextant_ret_t sched_subsystem_setup() {
 	number_thread_waiting = 0;
 	current_pos=0;
 	wait_current_pos = 0;
-
+	create_kernel_thread((kernel_thread_start_routine_t) NullProcess, NULL);
 	return SEXTANT_OK;
 }
 

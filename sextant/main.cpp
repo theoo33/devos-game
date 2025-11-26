@@ -18,7 +18,7 @@
 #include <sextant/types.h>
 
 
-#include <sextant/Synchronisation/Spinlock/Spinlock.h>
+#include <sextant/Synchronisation/Semaphore/Semaphore.h>
 
 #include <hal/pci.h>
 #include <drivers/vga.h>
@@ -33,6 +33,7 @@ int i;
 
 extern vaddr_t bootstrap_stack_bottom; //Adresse de début de la pile d'exécution
 extern size_t bootstrap_stack_size;//Taille de la pile d'exécution
+Semaphore keyboard_sem = Semaphore(1);
 
 void demo_vga() {
 	set_vga_mode13(); // set VGA mode
