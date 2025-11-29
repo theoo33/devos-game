@@ -48,58 +48,38 @@ void demo_vga() {
 void demo_bochs_8() {
 	ui16_t WIDTH = 640, HEIGHT = 400;
 	EcranBochs vga(WIDTH, HEIGHT, VBE_MODE::_8);
-	const char SPEED = 1;
-	Clavier c;
-	Player p1 = Player(
-		0, 0, sprite_data, SPEED,
-		AZERTY::K_Z,
-		AZERTY::K_S,
-		AZERTY::K_Q,
-		AZERTY::K_D
-	);
 	vga.init();
 	vga.clear(0);
 	// only usefull in 4 or 8 bits modes
 	vga.set_palette(palette_vga);
 	vga.plot_palette(0, 0, 25);
-	int frame = 0;
-	while (true) {
-		if (p1.is_any_key_pressed()) {
-			if (frame % 3 == 0) {
-				p1.move(WIDTH, HEIGHT);
-	
-			}
-		}
-		++frame;
-		vga.clear(1);
-		vga.plot_sprite(p1.get_data(), SPRITE_WIDTH, SPRITE_HEIGHT, p1.get_x(), p1.get_y());
-		vga.swapBuffer(); // call this after you finish drawing your frame to display it, it avoids screen tearing
-	}
 }
 
-	void demo_bochs_32() {
-		EcranBochs vga(640, 400, VBE_MODE::_32);
 
-		vga.init();
+void demo_bochs_32() {
+	EcranBochs vga(640, 400, VBE_MODE::_32);
+
+	vga.init();
+	
+	ui8_t offset = 0;
+	while(true) {
 		
-		ui8_t offset = 0;
-		while(true) {
-			
-			for (int y = 0; y < vga.getHeight(); y++) {
-				for (int x = 0; x < vga.getWidth(); x++) {
-					vga.paint(x, y, 
-						(~x << y%3) + offset & y, 
-						~offset * (x & ~y), 
-						offset | (~y < 2 - x % 16));
-				}
+		for (int y = 0; y < vga.getHeight(); y++) {
+			for (int x = 0; x < vga.getWidth(); x++) {
+				vga.paint(x, y, 
+					(~x << y%3) + offset & y, 
+					~offset * (x & ~y), 
+					offset | (~y < 2 - x % 16));
 			}
-			++offset;
 		}
+		++offset;
+	}
 }
 
 extern "C" void Sextant_main(unsigned long magic, unsigned long addr){
 	Ecran ecran;
 	Timer timer;
+	Player* player;
 
 	idt_setup();
 	irq_setup();
@@ -119,18 +99,37 @@ extern "C" void Sextant_main(unsigned long magic, unsigned long addr){
 
 	ecran.effacerEcran(NOIR);
 
-	thread_subsystem_setup(bootstrap_stack_bottom,bootstrap_stack_size);
+	thread_subsystem_setup(bootstrap_stack_bottom, bootstrap_stack_size);
 	sched_subsystem_setup();
 
 	irq_set_routine(IRQ_TIMER, sched_clk);
 
 	// initialize pci bus to detect GPU address
 	checkBus(0);
-
-
 	// demo_vga();
-
-	demo_bochs_8();
-
 	// demo_bochs_32();
+	// demo_bochs_8();
+
+
+	ui16_t WIDTH = 640, HEIGHT = 400;
+	EcranBochs vga(WIDTH, HEIGHT, VBE_MODE::_8);
+	const char SPEED = 1;
+	Clavier c;
+	player = new Player(
+		0, 0, sprite_data, SPEED,
+		AZERTY::K_Z,
+		AZERTY::K_S,
+		AZERTY::K_Q,
+		AZERTY::K_D,
+		&vga
+	);
+	vga.init();
+	vga.clear(0);
+	
+	player->start();
+
+	while (true) {
+		thread_yield();
+	}
+
 }
