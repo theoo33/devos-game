@@ -24,6 +24,7 @@
 
 #include <sextant/sprite.h>
 #include <Applications/Football/Player.h>
+#include <Applications/Football/Ball.h>
 
 
 extern char __e_kernel,__b_kernel, __b_data, __e_data,  __b_stack, __e_load ;
@@ -123,11 +124,27 @@ extern "C" void Sextant_main(unsigned long magic, unsigned long addr){
 		AZERTY::K_D,
 		&vga
 	);
+	Player* p_2 = new Player(
+		0, 0, sprite_data, SPEED,
+		AZERTY::K_Z,
+		AZERTY::K_S,
+		AZERTY::K_Q,
+		AZERTY::K_D,
+		&vga
+	);
 	vga.init();
 	vga.clear(0);
 	
 	player->start();
 
+	Ball* ball = new Ball(
+		100, 100, SPEED, sprite_door_data,
+		player,
+		p_2,
+		&vga
+	);
+
+	ball->start();
 	while (true) {
 		thread_yield();
 	}
