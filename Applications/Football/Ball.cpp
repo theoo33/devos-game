@@ -54,9 +54,7 @@ void Ball :: run() {
             this->x = p1->get_x() + SPRITE_WIDTH;
             this->y = p1->get_y() + SPRITE_HEIGHT;
         }
-        vga->clear(0);
-		vga->plot_sprite(get_data(), SPRITE_WIDTH, SPRITE_HEIGHT, get_x(), get_y());
-		vga->swapBuffer(); // call this after you finish drawing your frame to display it, it avoids screen tearing
+        vga->plot_sprite(get_data(), SPRITE_WIDTH, SPRITE_HEIGHT, get_x(), get_y());
         thread_yield();
     }
     thread_exit();

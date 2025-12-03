@@ -76,17 +76,12 @@ void Player::set_y(int new_y) {y=new_y;};
 unsigned char* Player::get_data() {return data;};
 
 void Player::run() {
-	int frame = 0;
 	while (true) {
-		if (is_any_key_pressed()) {
+        if (is_any_key_pressed()) {
             move(vga->getWidth(), vga->getHeight());
-            frame = 0;
 		}
-		++frame;
-		vga->clear(0);
-		vga->plot_sprite(get_data(), SPRITE_WIDTH, SPRITE_HEIGHT, get_x(), get_y());
-		vga->swapBuffer(); // call this after you finish drawing your frame to display it, it avoids screen tearing
-		thread_yield();
+        vga->plot_sprite(get_data(), SPRITE_WIDTH, SPRITE_HEIGHT, get_x(), get_y());
+        thread_yield();
 	}
     thread_exit();
 }

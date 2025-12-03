@@ -46,36 +46,36 @@ void demo_vga() {
 	}
 }
 
-void demo_bochs_8() {
-	ui16_t WIDTH = 640, HEIGHT = 400;
-	EcranBochs vga(WIDTH, HEIGHT, VBE_MODE::_8);
-	vga.init();
-	vga.clear(0);
-	// only usefull in 4 or 8 bits modes
-	vga.set_palette(palette_vga);
-	vga.plot_palette(0, 0, 25);
-}
+// void demo_bochs_8() {
+// 	ui16_t WIDTH = 640, HEIGHT = 400;
+// 	EcranBochs vga(WIDTH, HEIGHT, VBE_MODE::_8);
+// 	vga.init();
+// 	vga.clear(0);
+// 	// only usefull in 4 or 8 bits modes
+// 	vga.set_palette(palette_vga);
+// 	vga.plot_palette(0, 0, 25);
+// }
 
 
-void demo_bochs_32() {
-	EcranBochs vga(640, 400, VBE_MODE::_32);
+// void demo_bochs_32() {
+// 	EcranBochs vga(640, 400, VBE_MODE::_32);
 
-	vga.init();
+// 	vga.init();
 	
-	ui8_t offset = 0;
-	while(true) {
+// 	ui8_t offset = 0;
+// 	while(true) {
 		
-		for (int y = 0; y < vga.getHeight(); y++) {
-			for (int x = 0; x < vga.getWidth(); x++) {
-				vga.paint(x, y, 
-					(~x << y%3) + offset & y, 
-					~offset * (x & ~y), 
-					offset | (~y < 2 - x % 16));
-			}
-		}
-		++offset;
-	}
-}
+// 		for (int y = 0; y < vga.getHeight(); y++) {
+// 			for (int x = 0; x < vga.getWidth(); x++) {
+// 				vga.paint(x, y, 
+// 					(~x << y%3) + offset & y, 
+// 					~offset * (x & ~y), 
+// 					offset | (~y < 2 - x % 16));
+// 			}
+// 		}
+// 		++offset;
+// 	}
+// }
 
 extern "C" void Sextant_main(unsigned long magic, unsigned long addr){
 	Ecran ecran;
@@ -146,7 +146,9 @@ extern "C" void Sextant_main(unsigned long magic, unsigned long addr){
 
 	ball->start();
 	while (true) {
+		vga.clear(0);
 		thread_yield();
+		vga.swapBuffer();
 	}
 
 }
