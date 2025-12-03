@@ -146,7 +146,7 @@ extern "C" void Sextant_main(unsigned long magic, unsigned long addr){
 	player1->start();
 
 	ball = new Ball(
-		100, 100, BALL_SPEED, BALL_FRICTION, sprite_door_data,
+		100, 100, BALL_SPEED, BALL_FRICTION, sprite_ball_data,
 		player1,
 		player2,
 		&vga
