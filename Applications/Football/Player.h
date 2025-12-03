@@ -26,6 +26,9 @@ class Player : public Threads {
         void move(ui16_t WIDTH, ui16_t HEIGHT);
 
         void run();
+        
+        const int PLAYER_HEIGHT = SPRITE_HEIGHT;
+        const int PLAYER_WIDTH = SPRITE_WIDTH;
 
     private:
         int x;

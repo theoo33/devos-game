@@ -26,7 +26,7 @@ LD_WindowsNT=ld
 #-------------------
 ## Partie commune a toutes les configurations
 
-CPPFLAGS  = -gdwarf-2 -g3 -Wall -fno-builtin -fno-rtti -fno-exceptions -nostdinc $($(COMPILATEUR_OPTION))
+CPPFLAGS  = -O1 -gdwarf-2 -g3 -Wall -fno-builtin -fno-rtti -fno-exceptions -nostdinc $($(COMPILATEUR_OPTION))
 LDFLAGS = --warn-common -nostdlib $($(LIEUR_OPTION))
 
 PWD :=.
