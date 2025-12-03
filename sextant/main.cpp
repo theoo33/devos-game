@@ -114,6 +114,7 @@ extern "C" void Sextant_main(unsigned long magic, unsigned long addr){
 
 	ui16_t WIDTH = 640, HEIGHT = 400;
 	EcranBochs vga(WIDTH, HEIGHT, VBE_MODE::_8);
+	vga.set_palette(palette_vga);
 	const char SPEED = 1;
 	Clavier c;
 	player = new Player(
@@ -125,17 +126,17 @@ extern "C" void Sextant_main(unsigned long magic, unsigned long addr){
 		&vga
 	);
 	Player* p_2 = new Player(
-		0, 0, sprite_data, SPEED,
-		AZERTY::K_Z,
-		AZERTY::K_S,
-		AZERTY::K_Q,
-		AZERTY::K_D,
+		200, 200, sprite_data, SPEED,
+		AZERTY::K_O,
+		AZERTY::K_L,
+		AZERTY::K_K,
+		AZERTY::K_M,
 		&vga
 	);
 	vga.init();
-	vga.clear(0);
 	
 	player->start();
+	p_2->start();
 
 	Ball* ball = new Ball(
 		100, 100, SPEED, sprite_door_data,

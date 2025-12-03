@@ -53,18 +53,18 @@ bool Player::is_any_key_pressed() {
 
 void Player::move(ui16_t WIDTH, ui16_t HEIGHT) {
     if (key_pressed[Player::KEY_UP]) {
-        Player::set_y(Player::get_y()-Player::SPEED);
-        if (Player::get_y() < 0) Player::set_y(Player::get_y()+HEIGHT);
+        if (y > 0) y -= SPEED;
 	}
     if (key_pressed[Player::KEY_LEFT] ) {
-        Player::set_x(Player::get_x()-Player::SPEED);
-        if (Player::get_x() < 0) Player::set_x(Player::get_x()+WIDTH);
+        if (x > 0) x -= SPEED;
     }
     if (key_pressed[Player::KEY_DOWN]) {
-        Player::set_y((Player::get_y() + Player::SPEED) % HEIGHT);
+        if(y + SPRITE_HEIGHT + SPEED < HEIGHT)
+            y += SPEED;
     }
     if (key_pressed[Player::KEY_RIGHT]) {
-        Player::set_x(((Player::get_x() + Player::SPEED) % WIDTH));
+        if(x + SPRITE_WIDTH + SPEED < WIDTH)
+            x += SPEED;
     }
 }
 
