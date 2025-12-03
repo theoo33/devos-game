@@ -76,12 +76,18 @@ void Player::set_y(int new_y) {y=new_y;};
 unsigned char* Player::get_data() {return data;};
 
 void Player::run() {
-	while (true) {
-        if (is_any_key_pressed()) {
-            move(vga->getWidth(), vga->getHeight());
-		}
+    int frame = 0;
+    const int FRAME_SKIP = 5; // only update movement once every 5 frames
+    while (true) {
+        if ((frame % FRAME_SKIP) == 0) {
+            if (is_any_key_pressed()) {
+                move(vga->getWidth(), vga->getHeight());
+            }
+            frame = 0;
+        }
         vga->plot_sprite(get_data(), SPRITE_WIDTH, SPRITE_HEIGHT, get_x(), get_y());
+        frame++;
         thread_yield();
-	}
+    }
     thread_exit();
 }

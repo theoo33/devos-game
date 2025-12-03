@@ -80,7 +80,9 @@ void demo_vga() {
 extern "C" void Sextant_main(unsigned long magic, unsigned long addr){
 	Ecran ecran;
 	Timer timer;
-	Player* player;
+	Player* player1;
+	Player* player2;
+	Ball* ball;
 
 	idt_setup();
 	irq_setup();
@@ -117,7 +119,7 @@ extern "C" void Sextant_main(unsigned long magic, unsigned long addr){
 	vga.set_palette(palette_vga);
 	const char SPEED = 1;
 	Clavier c;
-	player = new Player(
+	player1 = new Player(
 		0, 0, sprite_data, SPEED,
 		AZERTY::K_Z,
 		AZERTY::K_S,
@@ -125,8 +127,8 @@ extern "C" void Sextant_main(unsigned long magic, unsigned long addr){
 		AZERTY::K_D,
 		&vga
 	);
-	Player* p_2 = new Player(
-		200, 200, sprite_data, SPEED,
+	player2 = new Player(
+		0, 0, sprite_data, SPEED,
 		AZERTY::K_O,
 		AZERTY::K_L,
 		AZERTY::K_K,
@@ -135,13 +137,12 @@ extern "C" void Sextant_main(unsigned long magic, unsigned long addr){
 	);
 	vga.init();
 	
-	player->start();
-	p_2->start();
+	player1->start();
 
-	Ball* ball = new Ball(
-		100, 100, SPEED, sprite_door_data,
-		player,
-		p_2,
+	ball = new Ball(
+		100, 100, 10, sprite_door_data,
+		player1,
+		player2,
 		&vga
 	);
 
