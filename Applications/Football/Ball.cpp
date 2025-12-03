@@ -2,10 +2,13 @@
 #include "Player.h"
 #include <drivers/EcranBochs.h>
 
+extern int FRAME_SKIP;
+
 Ball :: Ball(
     int x, 
     int y, 
-    char SPEED, 
+    int acc, 
+    int friction,
     unsigned char* data, 
     Player* p1, 
     Player* p2,
@@ -13,7 +16,10 @@ Ball :: Ball(
 ) :
     x(x),
     y(y),
-    SPEED(SPEED),
+    speed(0),
+    acc(acc),
+    friction(friction),
+    counter_till_next_speed(0),
     data(data),
     p1(p1),
     p2(p2),
@@ -49,9 +55,9 @@ bool Ball :: isColliding(Player* p) {
     return false;
 }
 
-void Ball :: getOrientation(Player* p) {
-    int x_diff = x - p->get_x();
-    int y_diff = y - p->get_y();
+void Ball :: getOrientation() {
+    // int x_diff = x - p1->get_x();
+    // int y_diff = y - p1->get_y();
 
     int x_diff_sign;
     int y_diff_sign;
@@ -64,36 +70,76 @@ void Ball :: getOrientation(Player* p) {
         ((x_diff * x_diff_sign) <= 2 * (y_diff * y_diff_sign)) 
         && (3 * (x_diff * x_diff_sign) >= 2 * (y_diff * y_diff_sign))
     ) {
-        towards_x = x_diff_sign;
-        towards_y = y_diff_sign;  
+        dx = x_diff_sign;
+        dy = y_diff_sign;  
     }
     else {
         if ((x_diff * x_diff_sign) > (y_diff * y_diff_sign)) {
-            towards_x = x_diff_sign;
-            towards_y = 0;
+            dx = x_diff_sign;
+            dy = 0;
         }
         else {
-            towards_x = 0;
-            towards_y = y_diff_sign;
+            dx = 0;
+            dy = y_diff_sign;
         }
     }
     
 }
 
+void Ball :: getOrientationBresenham() {
+    int e2 = 2 * err;
+    towards_x = 0;
+    towards_y = 0;
+
+    if (e2 > -y_diff) {
+        err -= y_diff;
+        towards_x = dx;   // vers_x
+    }
+    if (e2 < x_diff) {
+        err += x_diff;
+        towards_y = dy;   // vers_y
+    }
+}
+
 
 void Ball :: move() {
+    getOrientationBresenham();
 
+    if (counter_till_next_speed > 0) {
+        x = x + (towards_x * speed);
+        y = y + (towards_y * speed);
+        counter_till_next_speed -= 1;
+    }
+    else {
+        speed -= friction;
+        if (speed < 0) speed = 0;
+        counter_till_next_speed = speed;
+    }
 }
 
 void Ball :: run() {
-    while (true)
-    {
-        if (isColliding(p1)){
-            getOrientation(p1);
-            x = x + (towards_x * SPEED);
-            y = y + (towards_y * SPEED);
+    int frame = 0;
+    const int FRAME_SKIP = 5; // only update movement once every 5 frames
+    while (true) {
+        if ((frame % FRAME_SKIP) == 0) {
+            if (isColliding(p1)) {
+                speed = acc;
+                counter_till_next_speed = speed;
+
+                x_diff = x - p1->get_x();
+                y_diff = y - p1->get_y();
+                dx = (x_diff > 0) - (x_diff < 0);  // signum : -1, 0 ou 1
+                dy = (y_diff > 0) - (y_diff < 0);
+                if (x_diff < 0) x_diff = -x_diff;
+                if (y_diff < 0) y_diff = -y_diff;
+                err = x_diff - y_diff;
+
+                // getOrientation();
+            }
+            move();
         }
-        vga->plot_sprite(get_data(), SPRITE_WIDTH, SPRITE_HEIGHT, get_x(), get_y());
+        frame++;
+        vga->plot_sprite(get_data(), BALL_WIDTH, BALL_HEIGHT, get_x(), get_y());
         thread_yield();
     }
     thread_exit();

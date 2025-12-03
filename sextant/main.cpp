@@ -33,6 +33,8 @@ int i;
 extern vaddr_t bootstrap_stack_bottom; //Adresse de début de la pile d'exécution
 extern size_t bootstrap_stack_size;//Taille de la pile d'exécution
 
+int FRAME_SKIP = 5;
+
 void demo_vga() {
 	set_vga_mode13(); // set VGA mode
 	set_palette_vga(palette_vga); // set to given palette
@@ -84,6 +86,8 @@ extern "C" void Sextant_main(unsigned long magic, unsigned long addr){
 	Player* player2;
 	Ball* ball;
 
+	int FRAME_SKIP = 5;
+
 	idt_setup();
 	irq_setup();
 	//Initialisation de la frequence de l'horloge
@@ -117,10 +121,12 @@ extern "C" void Sextant_main(unsigned long magic, unsigned long addr){
 	ui16_t WIDTH = 640, HEIGHT = 400;
 	EcranBochs vga(WIDTH, HEIGHT, VBE_MODE::_8);
 	vga.set_palette(palette_vga);
-	const char SPEED = 1;
+	const char PLAYER_SPEED = 1;
+	const int BALL_SPEED = 6;
+	const int BALL_FRICTION = 1;
 	Clavier c;
 	player1 = new Player(
-		0, 0, sprite_data, SPEED,
+		0, 0, sprite_data, PLAYER_SPEED,
 		AZERTY::K_Z,
 		AZERTY::K_S,
 		AZERTY::K_Q,
@@ -128,7 +134,7 @@ extern "C" void Sextant_main(unsigned long magic, unsigned long addr){
 		&vga
 	);
 	player2 = new Player(
-		0, 0, sprite_data, SPEED,
+		0, 0, sprite_data, PLAYER_SPEED,
 		AZERTY::K_O,
 		AZERTY::K_L,
 		AZERTY::K_K,
@@ -140,7 +146,7 @@ extern "C" void Sextant_main(unsigned long magic, unsigned long addr){
 	player1->start();
 
 	ball = new Ball(
-		100, 100, 10, sprite_door_data,
+		100, 100, BALL_SPEED, BALL_FRICTION, sprite_door_data,
 		player1,
 		player2,
 		&vga

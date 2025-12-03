@@ -3,6 +3,7 @@
 #include "sextant/types.h"
 
 extern bool key_pressed[126];
+extern int FRAME_SKIP;
 
 // Player::Player(int x, 
 //     int y, 
@@ -77,7 +78,6 @@ unsigned char* Player::get_data() {return data;};
 
 void Player::run() {
     int frame = 0;
-    const int FRAME_SKIP = 5; // only update movement once every 5 frames
     while (true) {
         if ((frame % FRAME_SKIP) == 0) {
             if (is_any_key_pressed()) {
