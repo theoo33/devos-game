@@ -25,6 +25,7 @@
 #include <sextant/sprite.h>
 #include <Applications/Football/Player.h>
 #include <Applications/Football/Ball.h>
+#include <Applications/Football/Field.h>
 
 
 extern char __e_kernel,__b_kernel, __b_data, __e_data,  __b_stack, __e_load ;
@@ -82,6 +83,7 @@ extern "C" void Sextant_main(unsigned long magic, unsigned long addr){
 	Timer timer;
 	Player* player1;
 	Player* player2;
+	Field* field;
 	Ball* ball;
 
 	idt_setup();
@@ -119,6 +121,21 @@ extern "C" void Sextant_main(unsigned long magic, unsigned long addr){
 	vga.set_palette(palette_vga);
 	const char SPEED = 1;
 	Clavier c;
+
+	// Use static allocation to avoid stack overflow and new[] operator dependency
+	unsigned char background[640 * 400];
+	for (int i = 0; i < WIDTH * HEIGHT; i++) {
+		background[i] = 0; // Black
+	};
+
+    field = new Field(
+        background, 
+        &vga,  // Pass the address of the vga object
+        ZONE{ 0, 0, WIDTH, HEIGHT },
+        ZONE{ 0, 150, 20, 100 },
+		ZONE{ WIDTH - 20, 150, 20, 100 }
+    );
+
 	player1 = new Player(
 		0, 0, sprite_data, SPEED,
 		AZERTY::K_Z,
@@ -149,6 +166,10 @@ extern "C" void Sextant_main(unsigned long magic, unsigned long addr){
 	ball->start();
 	while (true) {
 		vga.clear(0);
+		if (field->outside_field(ball->get_x(), ball->get_y(),ball->BALL_WIDTH,ball->BALL_HEIGHT)) {
+			ball->set_x(WIDTH / 2);
+			ball->set_y(HEIGHT / 2);
+		}
 		thread_yield();
 		vga.swapBuffer();
 	}

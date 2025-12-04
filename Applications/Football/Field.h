@@ -8,34 +8,35 @@
 #include "Ball.h"
 #include <drivers/EcranBochs.h>
 
+typedef struct {
+    int left_upper_x;
+    int left_upper_y;
+    int WIDTH;
+    int HEIGHT;
+} ZONE;
+
 class Field {
     public:
         Field(
-            unsigned char* data,
-            EcranBochs* vga_entry
+            unsigned char* background_data,
+            EcranBochs* vga_entry,
+            const ZONE& borders,
+            const ZONE& left_goal,
+            const ZONE& right_goal
         );
-        void run();
-        void set_borders(ZONE dimensions);
-        void set_left_goal(ZONE dimensions);
-        void set_right_goal(ZONE dimensions);
         bool has_scored(Ball* b);
-        bool outside_field(Ball* b);
+        bool outside_field(int x, int y, int width, int height);
 
     
     private:
-        unsigned char* data;
+        int width;
+        int height;
+        unsigned char* background_data;
         EcranBochs* vga;
         ZONE field_dimensions;
         ZONE left_goal;
         ZONE right_goal;
         
-};
-
-struct ZONE {
-    static const int left_upper_x ;
-    static const int left_upper_y;
-    static const int WIDTH;
-    static const int HEIGHT;
 };
 
 #endif

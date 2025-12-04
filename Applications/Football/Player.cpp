@@ -24,8 +24,8 @@ extern bool key_pressed[126];
 //     vga(vga_entry)
 // {};
 
-Player::Player(int x, 
-    int y, 
+Player::Player(int x_pos, 
+    int y_pos, 
     unsigned char* data, 
     int speed, 
     ui8_t key_up, 
@@ -34,7 +34,7 @@ Player::Player(int x,
     ui8_t key_right, 
     EcranBochs* vga_entry){
 
-    x=x; y=y; 
+    x=x_pos; y=y_pos; 
     data=data;
     SPEED=speed;
     KEY_UP=key_up;
@@ -77,7 +77,7 @@ unsigned char* Player::get_data() {return data;};
 
 void Player::run() {
     int frame = 0;
-    const int FRAME_SKIP = 5; // only update movement once every 5 frames
+    int FRAME_SKIP = 5; // only update movement once every 5 frames
     while (true) {
         if ((frame % FRAME_SKIP) == 0) {
             if (is_any_key_pressed()) {
