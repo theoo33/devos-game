@@ -137,11 +137,11 @@ extern "C" void Sextant_main(unsigned long magic, unsigned long addr){
     field = new Field(
         background, 
         &vga,  // Pass the address of the vga object
-        ZONE{ 0, 0, WIDTH, HEIGHT },
-        ZONE{ 0, 150, 20, 100 },
-		ZONE{ WIDTH - 20, 150, 20, 100 }
+        ZONE{ 20, 20, WIDTH-20, HEIGHT-20 },
+        ZONE{ 20, 150, 70, 250 },
+		ZONE{ WIDTH - 70, 150, WIDTH - 20, 250 }
     );
-
+	static int TEAM_1 = 1;
 	player1 = new Player(
 		0, 0, sprite_data, PLAYER_SPEED,
 		AZERTY::K_Z,
@@ -150,6 +150,7 @@ extern "C" void Sextant_main(unsigned long magic, unsigned long addr){
 		AZERTY::K_D,
 		&vga
 	);
+	static int TEAM_2 = 2;
 	player2 = new Player(
 		0, 0, sprite_data, PLAYER_SPEED,
 		AZERTY::K_O,
@@ -171,7 +172,15 @@ extern "C" void Sextant_main(unsigned long magic, unsigned long addr){
 
 	ball->start();
 	while (true) {
-		vga.clear(0);
+		field->paint();
+
+		int scorer = field->has_scored(ball->get_x(), ball->get_y(),ball->BALL_WIDTH,ball->BALL_HEIGHT);
+		if (scorer == TEAM_1) {
+			vga.plot_palette(WIDTH/2-100,20, 10);
+		}
+		if (scorer == TEAM_2) {
+			vga.plot_palette(WIDTH/2+100,WIDTH - 70, 10);
+		}
 		if (field->outside_field(ball->get_x(), ball->get_y(),ball->BALL_WIDTH,ball->BALL_HEIGHT)) {
 			ball->set_x(WIDTH / 2);
 			ball->set_y(HEIGHT / 2);

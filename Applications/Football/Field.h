@@ -11,8 +11,8 @@
 typedef struct {
     int left_upper_x;
     int left_upper_y;
-    int WIDTH;
-    int HEIGHT;
+    int right_lower_x;
+    int right_lower_y;
 } ZONE;
 
 class Field {
@@ -24,18 +24,17 @@ class Field {
             const ZONE& left_goal,
             const ZONE& right_goal
         );
-        bool has_scored(Ball* b);
+        int has_scored(int x, int y, int width, int height);
         bool outside_field(int x, int y, int width, int height);
 
-    
-    private:
         int width;
         int height;
         unsigned char* background_data;
         EcranBochs* vga;
-        ZONE field_dimensions;
+        ZONE field;
         ZONE left_goal;
         ZONE right_goal;
+        void paint();
         
 };
 
