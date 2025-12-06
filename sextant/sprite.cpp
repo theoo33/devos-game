@@ -256,7 +256,7 @@ unsigned char palette_vga[256][3] = {
     {57, 53, 23},
     {60, 56, 27},
     {63, 61, 32},
-    {63, 63, 37},
+    {255, 255, 255},
 };
 
 unsigned char sprite_data[SPRITE_WIDTH*SPRITE_HEIGHT] = {
