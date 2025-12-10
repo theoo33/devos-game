@@ -143,7 +143,7 @@ extern "C" void Sextant_main(unsigned long magic, unsigned long addr){
     );
 	static int TEAM_1 = 1;
 	player1 = new Player(
-		0, 0, sprite_data, PLAYER_SPEED,
+		0, 0, sprite_player_red_right, PLAYER_SPEED,
 		AZERTY::K_Z,
 		AZERTY::K_S,
 		AZERTY::K_Q,

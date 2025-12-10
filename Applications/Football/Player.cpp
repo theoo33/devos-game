@@ -33,17 +33,17 @@ Player::Player(int x_pos,
     ui8_t key_down, 
     ui8_t key_left, 
     ui8_t key_right, 
-    EcranBochs* vga_entry){
-
-    x=x_pos; y=y_pos; 
-    data=data;
-    SPEED=speed;
-    KEY_UP=key_up;
-    KEY_DOWN=key_down;
-    KEY_LEFT=key_left;
-    KEY_RIGHT=key_right;
-    vga=vga_entry;
-};
+    EcranBochs* vga_entry) : 
+        x(x_pos), 
+        y(y_pos), 
+        data(data), 
+        SPEED(speed),
+        KEY_UP(key_up), 
+        KEY_DOWN(key_down), 
+        KEY_LEFT(key_left), 
+        KEY_RIGHT(key_right), 
+        vga(vga_entry) 
+        {};
 
 bool Player::is_any_key_pressed() {
     return (key_pressed[Player::KEY_UP] 
@@ -58,14 +58,16 @@ void Player::move(ui16_t WIDTH, ui16_t HEIGHT) {
 	}
     if (key_pressed[Player::KEY_LEFT] ) {
         if (x > 0) x -= SPEED;
+        data = sprite_player_red_left;
     }
     if (key_pressed[Player::KEY_DOWN]) {
-        if(y + SPRITE_HEIGHT + SPEED < HEIGHT)
+        if(y + PLAYER_HEIGHT + SPEED < HEIGHT)
             y += SPEED;
     }
     if (key_pressed[Player::KEY_RIGHT]) {
-        if(x + SPRITE_WIDTH + SPEED < WIDTH)
+        if(x + PLAYER_WIDTH + SPEED < WIDTH)
             x += SPEED;
+        data = sprite_player_red_right;
     }
 }
 
@@ -74,6 +76,7 @@ void Player::set_x(int new_x) {x=new_x;};
 
 int Player::get_y() {return y;};
 void Player::set_y(int new_y) {y=new_y;};
+
 unsigned char* Player::get_data() {return data;};
 
 void Player::run() {
@@ -85,7 +88,7 @@ void Player::run() {
             }
             frame = 0;
         }
-        vga->plot_sprite(get_data(), SPRITE_WIDTH, SPRITE_HEIGHT, get_x(), get_y());
+        vga->plot_sprite(get_data(), PLAYER_WIDTH, PLAYER_HEIGHT, get_x(), get_y());
         frame++;
         thread_yield();
     }

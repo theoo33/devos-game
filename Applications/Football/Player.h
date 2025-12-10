@@ -27,13 +27,13 @@ class Player : public Threads {
 
         void run();
         
-        const int PLAYER_HEIGHT = SPRITE_HEIGHT;
-        const int PLAYER_WIDTH = SPRITE_WIDTH;
+        const int PLAYER_HEIGHT = SPRITE_PLAYER_HEIGHT;
+        const int PLAYER_WIDTH = SPRITE_PLAYER_WIDTH;
 
     private:
         int x;
         int y;
-        unsigned char* data = sprite_data;
+        unsigned char* data;
         
 };
 
