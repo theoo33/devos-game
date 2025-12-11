@@ -16,6 +16,7 @@
 #include <sextant/ordonnancements/cpu_context.h>
 #include <sextant/ordonnancements/preemptif/thread.h>
 #include <sextant/types.h>
+#include <sextant/Synchronisation/Semaphore/Semaphore.h>
 
 
 #include <hal/pci.h>
@@ -26,7 +27,7 @@
 #include <Applications/Football/Player.h>
 #include <Applications/Football/Ball.h>
 #include <Applications/Football/Field.h>
-
+#include <Applications/Football/Score.h>
 
 extern char __e_kernel,__b_kernel, __b_data, __e_data,  __b_stack, __e_load ;
 int i;
@@ -35,6 +36,7 @@ extern vaddr_t bootstrap_stack_bottom; //Adresse de début de la pile d'exécuti
 extern size_t bootstrap_stack_size;//Taille de la pile d'exécution
 
 int FRAME_SKIP = 5;
+Semaphore* score_sem;  // Will be initialized in Sextant_main()
 
 void demo_vga() {
 	set_vga_mode13(); // set VGA mode
@@ -83,10 +85,13 @@ void demo_vga() {
 extern "C" void Sextant_main(unsigned long magic, unsigned long addr){
 	Ecran ecran;
 	Timer timer;
+	Score* red_score;
+	Score* blue_score;
 	Player* player1;
 	Player* player2;
 	Field* field;
 	Ball* ball;
+	score_sem = new Semaphore(1);  // Initialize the global semaphore
 
 	int FRAME_SKIP = 5;
 
@@ -142,6 +147,14 @@ extern "C" void Sextant_main(unsigned long magic, unsigned long addr){
 		ZONE{ WIDTH - 70, 150, WIDTH - 20, 250 }
     );
 	static int TEAM_1 = 1;
+
+	red_score = new Score(
+		WIDTH/2-(SPRITE_NUMBER_WIDTH+10),10,
+		zeroR_data,
+		oneR_data,
+		twoR_data,
+		threeR_data
+	);
 	player1 = new Player(
 		0, 0, sprite_player_red_right, PLAYER_SPEED,
 		AZERTY::K_Z,
@@ -150,6 +163,14 @@ extern "C" void Sextant_main(unsigned long magic, unsigned long addr){
 		AZERTY::K_D,
 		&vga
 	);
+	blue_score = new Score(
+		WIDTH/2+10,10,
+		zeroB_data,
+		oneB_data,
+		twoB_data,
+		threeB_data
+	);
+
 	static int TEAM_2 = 2;
 	player2 = new Player(
 		0, 0, sprite_data, PLAYER_SPEED,
@@ -173,13 +194,19 @@ extern "C" void Sextant_main(unsigned long magic, unsigned long addr){
 	ball->start();
 	while (true) {
 		field->paint();
+		// vga.set_palette(palette_numbers);
+		vga.plot_sprite(red_score->show_sprite(),red_score->WIDTH,red_score->HEIGHT,red_score->x,red_score->y);
+		vga.plot_sprite(blue_score->show_sprite(),blue_score->WIDTH,blue_score->HEIGHT,blue_score->x,blue_score->y);
+		// vga.set_palette(palette_vga);
 
 		int scorer = field->has_scored(ball->get_x(), ball->get_y(),ball->BALL_WIDTH,ball->BALL_HEIGHT);
 		if (scorer == TEAM_1) {
-			vga.plot_palette(WIDTH/2-100,20, 10);
+			red_score->increment();
+			score_sem->V();
 		}
 		if (scorer == TEAM_2) {
-			vga.plot_palette(WIDTH/2+100,WIDTH - 70, 10);
+			blue_score->increment();
+			score_sem->V();
 		}
 		if (field->outside_field(ball->get_x(), ball->get_y(),ball->BALL_WIDTH,ball->BALL_HEIGHT)) {
 			ball->set_x(WIDTH / 2);

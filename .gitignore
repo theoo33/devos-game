@@ -3,3 +3,7 @@
 *.elf
 *.log
 Makefile
+*.py*
+pyproject.toml
+uv.lock
+.venv

@@ -5,26 +5,6 @@
 extern bool key_pressed[126];
 extern int FRAME_SKIP;
 
-// Player::Player(int x, 
-//     int y, 
-//     unsigned char* data, 
-//     int speed, 
-//     ui8_t key_up, 
-//     ui8_t key_down, 
-//     ui8_t key_left, 
-//     ui8_t key_right, 
-//     EcranBochs* vga_entry):
-
-//     x(x), y(y), 
-//     data(data),
-//     SPEED(speed),
-//     KEY_UP(key_up),
-//     KEY_DOWN(key_down),
-//     KEY_LEFT(key_left),
-//     KEY_RIGHT(key_right),
-//     vga(vga_entry)
-// {};
-
 Player::Player(int x_pos, 
     int y_pos, 
     unsigned char* data, 

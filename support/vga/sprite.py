@@ -125,6 +125,15 @@ def png_to_c(path, external_palette=None,
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Convert PNG to C arrays for VGA with optional external palette.")
     parser.add_argument('-p', '--palette', help="Fichier de palette externe (.pal ou .gpl)")
+    parser.add_argument('--name', help="nom de la sprite exportee")
+    parser.add_argument('-w','--width', help="largeur de l'image")
+    parser.add_argument('-ht','--height', help="hauteur de l'image")
     parser.add_argument('image', help="Chemin vers l'image PNG à convertir")
     args = parser.parse_args()
-    png_to_c(args.image, external_palette=args.palette)
+    png_to_c(
+        args.image, 
+        external_palette=args.palette, 
+        array_name=args.name,
+        width_name=args.width,
+        height_name=args.height
+    )
