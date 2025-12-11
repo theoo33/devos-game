@@ -92,9 +92,9 @@ int Field :: has_scored(int x, int y, int width, int height) {
 bool Field :: outside_field(int x, int y, int width, int height) {
     if (
         (x < field.left_upper_x) ||
-        (x + width > field.left_upper_x + field.right_lower_x) ||
+        (x + width > field.right_lower_x) ||
         (y < field.left_upper_y) ||
-        (y + height > field.left_upper_y + field.right_lower_y)
+        (y + height > field.right_lower_y)
     ) {
         return true;
     }
