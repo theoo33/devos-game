@@ -232,3 +232,107 @@ ui8_t EcranBochs::bytesPerPixel() {
     if (mode == VBE_MODE::_15) return 2;
     return mode / 8;
 }
+
+// Simple 4x8 font bitmap for digits 0-9 and special characters
+static const ui8_t digit_font[12][8] = {
+    // 0
+    {0x0F, 0x09, 0x09, 0x09, 0x09, 0x09, 0x09, 0x0F},
+    // 1
+    {0x02, 0x06, 0x02, 0x02, 0x02, 0x02, 0x02, 0x07},
+    // 2
+    {0x0F, 0x09, 0x01, 0x02, 0x04, 0x08, 0x08, 0x0F},
+    // 3
+    {0x0F, 0x09, 0x01, 0x07, 0x01, 0x01, 0x09, 0x0F},
+    // 4
+    {0x09, 0x09, 0x09, 0x0F, 0x01, 0x01, 0x01, 0x01},
+    // 5
+    {0x0F, 0x08, 0x08, 0x0F, 0x01, 0x01, 0x09, 0x0F},
+    // 6
+    {0x07, 0x08, 0x08, 0x0F, 0x09, 0x09, 0x09, 0x0F},
+    // 7
+    {0x0F, 0x01, 0x02, 0x02, 0x04, 0x04, 0x08, 0x08},
+    // 8
+    {0x0F, 0x09, 0x09, 0x0F, 0x09, 0x09, 0x09, 0x0F},
+    // 9
+    {0x0F, 0x09, 0x09, 0x0F, 0x01, 0x01, 0x01, 0x0F},
+    // - (minus/dash) at index 10
+    {0x00, 0x00, 0x00, 0x0F, 0x00, 0x00, 0x00, 0x00},
+    // : (colon) at index 11
+    {0x00, 0x02, 0x02, 0x00, 0x02, 0x02, 0x00, 0x00},
+};
+
+void EcranBochs::draw_char(unsigned int x, unsigned int y, char c, ui8_t color, int scale) {
+    int font_index = -1;
+    
+    // Map character to font index
+    if (c >= '0' && c <= '9') {
+        font_index = c - '0';  // 0-9 at indices 0-9
+    } else if (c == '-') {
+        font_index = 10;  // minus sign at index 10
+    } else if (c == ':') {
+        font_index = 11;  // colon at index 11
+    } else {
+        return;  // Unsupported character
+    }
+    
+    const ui8_t* font = digit_font[font_index];
+    
+    // Draw 4x8 character with scaling
+    for (int row = 0; row < 8; row++) {
+        ui8_t bitmap = font[row];
+        for (int col = 0; col < 4; col++) {
+            if (bitmap & (1 << (3 - col))) {
+                // Draw scaled pixel as a square
+                for (int sy = 0; sy < scale; sy++) {
+                    for (int sx = 0; sx < scale; sx++) {
+                        paint(x + col * scale + sx, y + row * scale + sy, color);
+                    }
+                }
+            }
+        }
+    }
+}
+
+void EcranBochs::draw_string(unsigned int x, unsigned int y, const char* str, ui8_t color, int scale) {
+    int offset = 0;
+    while (*str != '\0') {
+        draw_char(x + offset, y, *str, color, scale);
+        offset += (4 + 1) * scale;  // (4 pixels width + 1 space) * scale
+        str++;
+    }
+}
+
+void EcranBochs::draw_number(unsigned int x, unsigned int y, int num, ui8_t color, int scale) {
+    // Handle negative numbers
+    if (num < 0) {
+        draw_char(x, y, '-', color, scale);
+        num = -num;
+        x += (4 + 1) * scale;
+    }
+    
+    // Convert number to string and draw
+    char buffer[12];
+    int pos = 0;
+    
+    if (num == 0) {
+        buffer[0] = '0';
+        buffer[1] = '\0';
+    } else {
+        // Extract digits in reverse order
+        int temp = num;
+        while (temp > 0) {
+            buffer[pos++] = '0' + (temp % 10);
+            temp /= 10;
+        }
+        buffer[pos] = '\0';
+        
+        // Reverse the string
+        for (int i = 0; i < pos / 2; i++) {
+            char t = buffer[i];
+            buffer[i] = buffer[pos - 1 - i];
+            buffer[pos - 1 - i] = t;
+        }
+    }
+    
+    draw_string(x, y, buffer, color, scale);
+}
