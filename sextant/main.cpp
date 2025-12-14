@@ -35,8 +35,6 @@ int i;
 
 extern vaddr_t bootstrap_stack_bottom; //Adresse de début de la pile d'exécution
 extern size_t bootstrap_stack_size;//Taille de la pile d'exécution
-extern Semaphore* half_time_sem;
-extern Semaphore* end_match_sem;
 
 Score* red_score;
 Score* blue_score;
@@ -44,6 +42,7 @@ Player* player1;
 Player* player2;
 Field* field;
 Ball* ball;
+HalfManager* half_manager;
 
 // GAME CONSTANTS
 int FRAME_SKIP = 5;
@@ -129,7 +128,8 @@ void init_match(EcranBochs* vga){
 		player2,
 		vga
 	);
-	HalfManager* half_manager = new HalfManager(HALF_TIME);
+	half_manager = new HalfManager(vga);
+
 	/*Start threads*/
 	red_score->start();
 	blue_score->start();
@@ -206,18 +206,20 @@ extern "C" void Sextant_main(unsigned long magic, unsigned long addr){
 		}
 
 		if (timer.getSecondes()==HALF_TIME && !half_time_triggered){
+			half_manager->half_time_sem->V();
 			half_time_triggered = true;
 			ball->set_x(WIDTH / 2);
 			ball->set_y(HEIGHT / 2);
-			half_time_sem->V();
-			player1->set_x(WIDTH / 2 + 100);
+			player1->set_x(WIDTH / 2 + 50);
 			player1->set_y((HEIGHT - SPRITE_PLAYER_HEIGHT) / 2);
+			player2->set_x(WIDTH/2-(SPRITE_PLAYER_WIDTH+50));
+			player2->set_y((HEIGHT - SPRITE_PLAYER_HEIGHT) / 2);
 			red_score->x= WIDTH/2+10;
 			blue_score->x= WIDTH/2-(SPRITE_NUMBER_WIDTH+10);
 		}
 		if (timer.getSecondes()==2*HALF_TIME && !end_match_triggered){
 			end_match_triggered = true;
-			end_match_sem->V();
+			half_manager->half_time_sem->V();
 		}
 		
 		draw_time(&vga,WIDTH,10);

@@ -1,28 +1,29 @@
 #include "HalfManager.h"
 #include <sextant/Synchronisation/Semaphore/Semaphore.h>
 #include <sextant/ordonnancements/preemptif/thread.h>
+#include <drivers/EcranBochs.h>
 
-Semaphore* half_time_sem = new Semaphore(1);
-Semaphore* end_match_sem = new Semaphore(1);
-
-HalfManager::HalfManager(int half_time_duration_seconds) 
-    : half_time_duration_seconds(half_time_duration_seconds) {
+HalfManager::HalfManager(EcranBochs* vga) : vga(vga) {
 }
 
-void half_logic() {
-    int i = 0;
+void HalfManager::half_logic() {
     half_time_sem->P();
+    // TODO : Prepare screen for the pause
 }
 
-void match_end_logic() {
-    int i = 0;
-    end_match_sem->P();
+void HalfManager::match_end_logic() {
+    half_time_sem->P();
+    // TODO : Prepare screen for the end of the match
 }
 
 void HalfManager::run() {
+    half_time_sem->P();
     while(true){
-        half_logic();
-        match_end_logic();
+        if (!half_passed){
+            half_logic();
+            half_passed = true;
+        }
+        else match_end_logic();
         thread_yield();
     }
 }

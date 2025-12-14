@@ -3,16 +3,18 @@
 
 #include <sextant/Activite/Threads.h>
 #include <sextant/Synchronisation/Semaphore/Semaphore.h>
-
-extern Semaphore* half_time_sem;
-extern Semaphore* end_match_sem;
+#include <drivers/EcranBochs.h>
 
 class HalfManager : public Threads {
     public:
-        HalfManager(int half_time_duration_seconds);
+        HalfManager(EcranBochs* vga);
         void run();
+        Semaphore* half_time_sem = new Semaphore(1);
     private:
-        int half_time_duration_seconds;
+        EcranBochs* vga;
+        bool half_passed = false;
+        void half_logic();
+        void match_end_logic();
 };
 
 #endif
