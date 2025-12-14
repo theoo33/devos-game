@@ -393,7 +393,7 @@ unsigned char sprite_door_data[SPRITE_WIDTH*SPRITE_HEIGHT] = {
   2,   2,   2,   2,   2,   2,   2,   2, 241,   2,   2,   2,   2,   2,   2,   2
 };
 
-unsigned char sprite_ball_data[SPRITE_WIDTH*SPRITE_HEIGHT] = {
+unsigned char sprite_ball_data[SPRITE_BALL_WIDTH*SPRITE_BALL_HEIGHT] = {
   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   2,   3,   3,   3,

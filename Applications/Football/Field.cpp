@@ -59,6 +59,9 @@ Field :: Field(
     field.left_upper_y = borders.left_upper_y;
     field.right_lower_x = borders.right_lower_x;
     field.right_lower_y = borders.right_lower_y;
+
+    center_x = (field.left_upper_x + field.right_lower_x) / 2;
+    center_y = (field.left_upper_y + field.right_lower_y) / 2;
     
     left_goal.left_upper_x = left_goal_zone.left_upper_x;
     left_goal.left_upper_y = left_goal_zone.left_upper_y;
@@ -104,8 +107,8 @@ bool Field :: outside_field(int x, int y, int width, int height) {
 void Field :: paint() {
     vga->clear(197); // Green field color
     paint_circle(
-        (field.left_upper_x + field.right_lower_x) /2,
-        (field.left_upper_y + field.right_lower_y) /2,
+        center_x,
+        center_y,
         40,
         vga
     );

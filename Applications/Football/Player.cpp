@@ -1,6 +1,8 @@
 #include "Player.h"
 #include <drivers/EcranBochs.h>
 #include "sextant/types.h"
+#include <drivers/Clavier.h>
+
 
 extern bool key_pressed[126];
 extern int FRAME_SKIP;
@@ -9,21 +11,27 @@ Player::Player(int x_pos,
     int y_pos, 
     unsigned char* data, 
     int speed, 
-    ui8_t key_up, 
-    ui8_t key_down, 
-    ui8_t key_left, 
-    ui8_t key_right, 
+    int team,
     EcranBochs* vga_entry) : 
         x(x_pos), 
         y(y_pos), 
         data(data), 
         SPEED(speed),
-        KEY_UP(key_up), 
-        KEY_DOWN(key_down), 
-        KEY_LEFT(key_left), 
-        KEY_RIGHT(key_right), 
         vga(vga_entry) 
-        {};
+        {
+        if (team == 1) {
+            KEY_UP = AZERTY::K_Z;
+            KEY_DOWN = AZERTY::K_S;
+            KEY_LEFT = AZERTY::K_Q;
+            KEY_RIGHT = AZERTY::K_D;
+        }
+        else {
+            KEY_UP = AZERTY::K_O;
+            KEY_DOWN = AZERTY::K_L;
+            KEY_LEFT = AZERTY::K_K;
+            KEY_RIGHT = AZERTY::K_M;
+        }
+        };
 
 bool Player::is_any_key_pressed() {
     return (key_pressed[Player::KEY_UP] 

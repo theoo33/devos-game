@@ -15,8 +15,8 @@ typedef struct {
 
 class Ball : public Threads {
     public:
-        const int BALL_HEIGHT = SPRITE_HEIGHT;
-        const int BALL_WIDTH = SPRITE_WIDTH;
+        const int BALL_HEIGHT = SPRITE_BALL_HEIGHT;
+        const int BALL_WIDTH = SPRITE_BALL_WIDTH;
 
         Ball(
             int x, 

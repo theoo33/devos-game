@@ -91,9 +91,9 @@ extern "C" void Sextant_main(unsigned long magic, unsigned long addr){
 	Player* player2;
 	Field* field;
 	Ball* ball;
+	Clavier c;
 	score_sem = new Semaphore(1);  // Initialize the global semaphore
 
-	int FRAME_SKIP = 5;
 
 	idt_setup();
 	irq_setup();
@@ -102,7 +102,7 @@ extern "C" void Sextant_main(unsigned long magic, unsigned long addr){
 	timer.i8254_set_frequency(1000);
 	irq_set_routine(IRQ_TIMER, ticTac);
 
-	asm volatile("sti\n");//Autorise les interruptions
+	asm volatile("sti\n"); //Autorise les interruptions
 
 	irq_set_routine(IRQ_KEYBOARD, handler_clavier);
 
@@ -124,17 +124,17 @@ extern "C" void Sextant_main(unsigned long magic, unsigned long addr){
 	// demo_bochs_32();
 	// demo_bochs_8();
 
-
 	ui16_t WIDTH = 640, HEIGHT = 400;
 	EcranBochs vga(WIDTH, HEIGHT, VBE_MODE::_8);
 	vga.set_palette(palette_vga);
+
 	const char PLAYER_SPEED = 1;
 	const int BALL_SPEED = 6;
 	const int BALL_FRICTION = 1;
-	Clavier c;
+	int FRAME_SKIP = 5;
 
 	// Use static allocation to avoid stack overflow and new[] operator dependency
-	unsigned char background[640 * 400];
+	unsigned char background[WIDTH * HEIGHT];
 	for (int i = 0; i < WIDTH * HEIGHT; i++) {
 		background[i] = 0; // Black
 	};
@@ -146,46 +146,39 @@ extern "C" void Sextant_main(unsigned long magic, unsigned long addr){
         ZONE{ 20, 150, 70, 250 },
 		ZONE{ WIDTH - 70, 150, WIDTH - 20, 250 }
     );
-	static int TEAM_1 = 1;
 
+	static int TEAM_1 = 1;
 	red_score = new Score(
 		WIDTH/2-(SPRITE_NUMBER_WIDTH+10),10,
-		zeroR_data,
-		oneR_data,
-		twoR_data,
-		threeR_data
+		TEAM_1
 	);
 	player1 = new Player(
-		0, 0, sprite_player_red_right, PLAYER_SPEED,
-		AZERTY::K_Z,
-		AZERTY::K_S,
-		AZERTY::K_Q,
-		AZERTY::K_D,
+		field->field.left_upper_x, 
+		field->get_center_y() - SPRITE_PLAYER_HEIGHT / 2, 
+		sprite_player_red_right, PLAYER_SPEED,
+		TEAM_1,
 		&vga
-	);
-	blue_score = new Score(
-		WIDTH/2+10,10,
-		zeroB_data,
-		oneB_data,
-		twoB_data,
-		threeB_data
 	);
 
 	static int TEAM_2 = 2;
+	blue_score = new Score(
+		WIDTH/2+10,10,
+		TEAM_2
+	);
 	player2 = new Player(
 		0, 0, sprite_data, PLAYER_SPEED,
-		AZERTY::K_O,
-		AZERTY::K_L,
-		AZERTY::K_K,
-		AZERTY::K_M,
+		TEAM_2,
 		&vga
 	);
+
 	vga.init();
 	
 	player1->start();
 
 	ball = new Ball(
-		100, 100, BALL_SPEED, BALL_FRICTION, sprite_ball_data,
+		field->get_center_x() - SPRITE_BALL_WIDTH / 2, 
+		field->get_center_y() - SPRITE_BALL_HEIGHT / 2, 
+		BALL_SPEED, BALL_FRICTION, sprite_ball_data,
 		player1,
 		player2,
 		&vga

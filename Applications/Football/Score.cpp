@@ -6,10 +6,7 @@ extern Semaphore* score_sem;
 Score::Score(
     int x_pos, 
     int y_pos, 
-    unsigned char* zero_data,
-    unsigned char* one_data,
-    unsigned char* two_data,
-    unsigned char* three_data
+    int team
 ) : 
 x(x_pos), 
 y(y_pos), 
@@ -19,6 +16,18 @@ two_data(two_data),
 three_data(three_data)
 {
     count = 0;
+    if (team == 1) {
+        zero_data = zeroR_data;
+        one_data = oneR_data;
+        two_data = twoR_data;
+        three_data = threeR_data;
+    }
+    else {
+        zero_data = zeroB_data;
+        one_data = oneB_data;
+        two_data = twoB_data;
+        three_data = threeB_data;
+    }
 }
 
 void Score::increment(){

@@ -11,10 +11,7 @@ class Score : public Threads {
         Score(
             int x,
             int y,
-            unsigned char* zero_data,
-            unsigned char* one_data,
-            unsigned char* two_data,
-            unsigned char* three_data
+            int team
         );
         void increment();
         unsigned char* show_sprite();
