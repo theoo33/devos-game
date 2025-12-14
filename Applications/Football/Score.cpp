@@ -4,11 +4,7 @@
 Score::Score(
     int x_pos, 
     int y_pos, 
-    int team
-    unsigned char* zero_data,
-    unsigned char* one_data,
-    unsigned char* two_data,
-    unsigned char* three_data,
+    int team,
     Semaphore* sem
 ) : 
 x(x_pos), 

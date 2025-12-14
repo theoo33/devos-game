@@ -110,19 +110,18 @@ void Ball :: run() {
     const int FRAME_SKIP = 5; // only update movement once every 5 frames
     while (true) {
         if ((frame % FRAME_SKIP) == 0) {
-            {
-                Player* players[2] = {p1, p2};
-                for (Player* p : players) {
-                    if (isColliding(p)) {
-                        speed = acc;
-                        counter_till_next_speed = speed;
+            Player* players[2] = {p1, p2};
+            for (Player* p : players) {
+                if (isColliding(p)) {
+                    speed = acc;
+                    counter_till_next_speed = speed;
 
-                x_diff = x - p1->get_x();
-                y_diff = y - p1->get_y();
-                bresenhamInit();
-                
-            }
+                    x_diff = x - p1->get_x();
+                    y_diff = y - p1->get_y();
+                    bresenhamInit();
+                    }
             move();
+            }
         }
         frame++;
         vga->plot_sprite(get_data(), BALL_WIDTH, BALL_HEIGHT, get_x(), get_y());

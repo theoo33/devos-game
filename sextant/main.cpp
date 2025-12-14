@@ -96,11 +96,13 @@ void init_match(EcranBochs* vga){
 		TEAM_1,
 		blue_score_sem
 	);
+
 	red_score = new Score(
 		WIDTH/2-(SPRITE_NUMBER_WIDTH+10),10,
 		TEAM_2,
 		red_score_sem
 	);
+
 	player1 = new Player(
 		WIDTH/2-(SPRITE_PLAYER_WIDTH+50), (HEIGHT-SPRITE_PLAYER_HEIGHT)/2, sprite_player_red_right, PLAYER_SPEED,
 		TEAM_1,
@@ -114,7 +116,9 @@ void init_match(EcranBochs* vga){
 	);
 
 	ball = new Ball(
-		(WIDTH-SPRITE_WIDTH)/2, (HEIGHT-SPRITE_HEIGHT)/2, BALL_SPEED, BALL_FRICTION, sprite_ball_data,
+		field->get_center_x() - SPRITE_BALL_WIDTH / 2, 
+		field->get_center_y() - SPRITE_BALL_HEIGHT / 2, 
+		BALL_SPEED, BALL_FRICTION, sprite_ball_data,
 		player1,
 		player2,
 		vga,
@@ -171,8 +175,8 @@ extern "C" void Sextant_main(unsigned long magic, unsigned long addr){
 	init_match(&vga);
 	
 	// Track which events have been triggered to avoid multiple signals
-	bool half_time_triggered = false;
-	bool end_match_triggered = false;
+	bool half_time_triggered = true;
+	bool end_match_triggered = true;
 	
 	while (true) {
 		field->paint();
