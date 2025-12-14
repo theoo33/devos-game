@@ -84,6 +84,7 @@ run: $(KERNEL_OBJ)
 
 run_gui: $(KERNEL_OBJ)
 	$(QEMU) -net nic,model=ne2k_isa -audiodev pa,id=speaker -machine pcspk-audiodev=speaker -net user,tftp=./build/boot -cdrom ./build/boot/grub.iso
+# 	$(QEMU) -net nic,model=ne2k_isa -audiodev coreaudio,id=speaker -machine pcspk-audiodev=speaker -net user,tftp=./build/boot -cdrom ./build/boot/grub.iso
 
 debug: $(KERNEL_OBJ)
 	$(QEMU) -display curses -S -s  -net nic,model=ne2k_isa -net user,tftp=./build/boot -cdrom ./build/boot/grub.iso
