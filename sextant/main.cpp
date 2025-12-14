@@ -34,7 +34,6 @@
 #include <Applications/Football/HalfManager.h>
 
 extern char __e_kernel,__b_kernel, __b_data, __e_data,  __b_stack, __e_load ;
-int i;
 
 extern vaddr_t bootstrap_stack_bottom; //Adresse de début de la pile d'exécution
 extern size_t bootstrap_stack_size;//Taille de la pile d'exécution
@@ -47,10 +46,10 @@ Field* field;
 Ball* ball;
 HalfManager* half_manager;
 
-// GAME CONSTANTS
-int FRAME_SKIP = 5;
-ui16_t WIDTH = 640, HEIGHT = 400;
-const char PLAYER_SPEED = 1;
+/* CONSTANTS */
+int FRAME_SKIP = 5; // to slow down movement
+ui16_t WIDTH = 640, HEIGHT = 400; // screen dimensions
+const char PLAYER_SPEED = 1; // in pixel per frame
 const int BALL_SPEED = 6;
 const int BALL_FRICTION = 1;
 static int TEAM_1 = 1;
@@ -68,6 +67,7 @@ void timer_handler_combined(int intid) {
 	sched_clk(intid);
 }
 
+/* TIME DISPLAY */
 void draw_time(EcranBochs* vga,int screen_width, int space_between){
 	int minutes = timer.getSecondes()/60;
 	int seconds = timer.getSecondes()%60;
@@ -75,12 +75,11 @@ void draw_time(EcranBochs* vga,int screen_width, int space_between){
 	vga->draw_number(screen_width/2-space_between,1,minutes,255,2);
 	vga->draw_char(screen_width/2,1,':',255,2);
 	if (seconds<10) vga->draw_number(screen_width/2+space_between,1,0,255,2);
-	vga->draw_number(screen_width/2+2*space_between,1,seconds,255,2);
-		
+	vga->draw_number(screen_width/2+2*space_between,1,seconds,255,2);	
 }
 
+
 void init_match(EcranBochs* vga){
-	
 
 	field = new Field( 
         vga,  // Pass the address of the vga object
@@ -90,30 +89,23 @@ void init_match(EcranBochs* vga){
     );
 
 	red_score = new Score(
-		WIDTH/2-(SPRITE_NUMBER_WIDTH+10),10,TEAM_1
+		field->get_center_x()-(SPRITE_NUMBER_WIDTH+10),10,TEAM_1
 	);
 	blue_score = new Score(
-		WIDTH/2+10,10,TEAM_2
+		field->get_center_x()+10,10,TEAM_2
 	);
 	player1 = new Player(
-		WIDTH/2-(SPRITE_PLAYER_WIDTH+50), (HEIGHT-SPRITE_PLAYER_HEIGHT)/2, TEAM_1, PLAYER_SPEED,
-		vga,
-		field
+		field->get_center_x()-(SPRITE_PLAYER_WIDTH+50), field->get_center_y() - SPRITE_PLAYER_HEIGHT/2, 
+		TEAM_1, PLAYER_SPEED, vga, field
 	);
-
 	player2 = new Player(
-		WIDTH/2+50, (HEIGHT-SPRITE_PLAYER_HEIGHT)/2, TEAM_2, PLAYER_SPEED,
-		vga,
-		field
+		field->get_center_x()+50, field->get_center_y() - SPRITE_PLAYER_HEIGHT/2, 
+		TEAM_2, PLAYER_SPEED, vga, field
 	);
-
 	ball = new Ball(
-		(WIDTH-SPRITE_BALL_WIDTH)/2, (HEIGHT-SPRITE_BALL_HEIGHT)/2, 
+		field->get_center_x() - SPRITE_BALL_WIDTH/2, field->get_center_y() - SPRITE_BALL_HEIGHT/2, 
 		BALL_SPEED, BALL_FRICTION, sprite_ball_data,
-		player1,
-		player2,
-		vga,
-		field
+		player1, player2, vga, field
 	);
 	half_manager = new HalfManager(vga);
 
@@ -131,6 +123,7 @@ void init_match(EcranBochs* vga){
 extern "C" void Sextant_main(unsigned long magic, unsigned long addr){
 	Ecran ecran;
 	Clavier c;
+
 
 	idt_setup();
 	irq_setup();
@@ -163,7 +156,6 @@ extern "C" void Sextant_main(unsigned long magic, unsigned long addr){
 	vga.set_palette(palette_vga);
 
 	vga.init();
-
 	init_match(&vga);
 	
 	// Track which events have been triggered to avoid multiple signals
@@ -172,20 +164,23 @@ extern "C" void Sextant_main(unsigned long magic, unsigned long addr){
 	bool music_started = false;
 	
 	while (true) {
-		// Start music on first iteration
 		
 		field->paint();
+
+		// Start music on first iteration
 		if (!music_started) {
 			music_started = true;
-			main_theme(&speaker);
+			// main_theme(&speaker);
 			timer.reset();
 		}
+
 		// vga.plot_sprite(scoreBoard_data,246,143,WIDTH/2-143,1);
 		// vga.set_palette(palette_numbers);
+		// vga.set_palette(palette_vga);
 		vga.plot_sprite(red_score->show_sprite(),red_score->WIDTH,red_score->HEIGHT,red_score->x,red_score->y);
 		vga.plot_sprite(blue_score->show_sprite(),blue_score->WIDTH,blue_score->HEIGHT,blue_score->x,blue_score->y);
-		// vga.set_palette(palette_vga);
 
+		// GOAL LOGIC
 		int scorer = field->has_scored(ball->get_x(), ball->get_y(),ball->BALL_WIDTH,ball->BALL_HEIGHT);
 		if (half_manager->half_passed) {
 			scorer = 2 - scorer + 1; // invert scoring team after half-time
@@ -193,29 +188,16 @@ extern "C" void Sextant_main(unsigned long magic, unsigned long addr){
 		if (scorer == TEAM_1) {
 			blue_score->sem->V();
 			speaker.play(400, 100);  // Goal sound: 800Hz for 200ms
-			ball->set_x(field->get_center_x() - ball->BALL_WIDTH / 2);
-			ball->set_y(field->get_center_y() - ball->BALL_HEIGHT / 2);
-			ball->set_speed(0);
-			ball->set_counter(0);
+			ball->reset_position();
 		}
 
 		if (scorer == TEAM_2) {
 			red_score->sem->V();
 			speaker.play(400, 100);  // Goal sound: 800Hz for 200ms
-			ball->set_x(field->get_center_x() - ball->BALL_WIDTH / 2);
-			ball->set_y(field->get_center_y() - ball->BALL_HEIGHT / 2);
-			ball->set_speed(0);
-			ball->set_counter(0);
+			ball->reset_position();
 		}
 
-	// 	if (field->outside_field_x(ball->get_x(), ball->get_y(),ball->BALL_WIDTH,ball->BALL_HEIGHT)
-	// || field->outside_field_y(ball->get_x(), ball->get_y(),ball->BALL_WIDTH,ball->BALL_HEIGHT)) {
-	// 		ball->set_x(field->get_center_x() - ball->BALL_WIDTH / 2);
-	// 		ball->set_y(field->get_center_y() - ball->BALL_HEIGHT / 2);
-	// 		ball->set_speed(0);
-	// 		ball->set_counter(0);
-		// }
-
+		// HALF-TIME AND END-MATCH LOGIC
 		if (timer.getSecondes()==HALF_TIME && !half_time_triggered){
 			half_manager->half_time_sem->V();
 			half_time_triggered = true;

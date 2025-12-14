@@ -44,6 +44,8 @@ class Ball : public Threads {
         void set_counter(int new_counter){ counter_till_next_speed = new_counter; };
         
         void run();
+
+        void reset_position();
         
         Vector movement;
         
@@ -74,7 +76,6 @@ class Ball : public Threads {
         void bresenhamInit();
         void bresenhamGetOrientation();
         void move();
-
         
 };
 

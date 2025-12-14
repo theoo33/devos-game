@@ -77,6 +77,12 @@ void Ball :: bresenhamGetOrientation() {
     }
 }
 
+void Ball :: reset_position() {
+    x = field->get_center_x() - BALL_WIDTH / 2;
+    y = field->get_center_y() - BALL_HEIGHT / 2;
+    speed = 0;
+    counter_till_next_speed = 0;
+}
 
 void Ball :: move() {
     bresenhamGetOrientation();
