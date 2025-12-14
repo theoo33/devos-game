@@ -98,7 +98,7 @@ void init_match(EcranBochs* vga){
 		threeR_data
 	);
 	player1 = new Player(
-		WIDTH/2-(SPRITE_PLAYER_WIDTH+50), (HEIGHT-SPRITE_PLAYER_HEIGHT)/2, sprite_player_red_right, PLAYER_SPEED,
+		WIDTH/2-(SPRITE_PLAYER_WIDTH+50), (HEIGHT-SPRITE_PLAYER_HEIGHT)/2, 'R', PLAYER_SPEED,
 		AZERTY::K_Z,
 		AZERTY::K_S,
 		AZERTY::K_Q,
@@ -107,7 +107,7 @@ void init_match(EcranBochs* vga){
 	);
 
 	player2 = new Player(
-		WIDTH/2+50, (HEIGHT-SPRITE_PLAYER_HEIGHT)/2, sprite_data, PLAYER_SPEED,
+		WIDTH/2+50, (HEIGHT-SPRITE_PLAYER_HEIGHT)/2, 'B', PLAYER_SPEED,
 		AZERTY::K_O,
 		AZERTY::K_L,
 		AZERTY::K_K,
