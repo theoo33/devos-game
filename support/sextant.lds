@@ -102,4 +102,11 @@ SECTIONS
     /* We take note of the end of the kernel: this is where the GPFM
        will begin */
     __e_kernel = .;
+
+    /* Discard exception handling frame info (not used in kernel) */
+    /DISCARD/ :
+    {
+        *(.eh_frame)
+        *(.eh_frame_hdr)
+    }
 }
