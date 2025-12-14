@@ -181,7 +181,8 @@ extern "C" void Sextant_main(unsigned long magic, unsigned long addr){
 		BALL_SPEED, BALL_FRICTION, sprite_ball_data,
 		player1,
 		player2,
-		&vga
+		&vga,
+		field
 	);
 
 	ball->start();
@@ -201,9 +202,12 @@ extern "C" void Sextant_main(unsigned long magic, unsigned long addr){
 			blue_score->increment();
 			score_sem->V();
 		}
-		if (field->outside_field(ball->get_x(), ball->get_y(),ball->BALL_WIDTH,ball->BALL_HEIGHT)) {
-			ball->set_x(WIDTH / 2);
-			ball->set_y(HEIGHT / 2);
+		// Test if ball is outside field
+		if (field->outside_field(ball->get_x(), ball->get_y(), ball->BALL_WIDTH, ball->BALL_HEIGHT)) {
+			ball->set_x(field->get_center_x() - SPRITE_BALL_WIDTH / 2);
+			ball->set_y(field->get_center_y() - SPRITE_BALL_HEIGHT / 2);
+			ball->set_speed(0);
+			ball->set_counter(0);
 		}
 		thread_yield();
 		vga.swapBuffer();

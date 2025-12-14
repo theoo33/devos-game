@@ -76,14 +76,14 @@ Field :: Field(
 
 int Field :: has_scored(int x, int y, int width, int height) {
     if (
-        (x < left_goal.left_upper_x) &&
+        (x + width < left_goal.left_upper_x) &&
         (y > left_goal.left_upper_y) &&
         (y + height < left_goal.right_lower_y)
     ) {
         return 1;
     }
     if (
-        (x + width > right_goal.right_lower_x) &&
+        (x > right_goal.right_lower_x) &&
         (y > right_goal.left_upper_y) &&
         (y + height < right_goal.right_lower_y)
     ) {
@@ -102,6 +102,17 @@ bool Field :: outside_field(int x, int y, int width, int height) {
         return true;
     }
     return false;
+}
+
+bool Field :: outside_field_x(int x, int y, int width, int height) {
+    return (
+        ((x < field.left_upper_x) || (x > field.right_lower_x))
+        && (y > left_goal.left_upper_y && y + height < left_goal.right_lower_y)
+    );
+}
+
+bool Field :: outside_field_y(int y, int height) {
+    return (y < field.left_upper_y) || (y + height > field.right_lower_y);
 }
 
 void Field :: paint() {
