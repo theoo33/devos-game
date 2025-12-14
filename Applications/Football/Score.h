@@ -15,8 +15,7 @@ class Score : public Threads {
             unsigned char* zero_data,
             unsigned char* one_data,
             unsigned char* two_data,
-            unsigned char* three_data,
-            Semaphore* sem
+            unsigned char* three_data
         );
         void run();
         void increment();
@@ -30,8 +29,8 @@ class Score : public Threads {
         int x;
         int y;
         int get_count(){return count;};
+        Semaphore* sem;
     private:
         int count;
-        Semaphore* sem;
 };
 #endif

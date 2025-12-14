@@ -54,8 +54,7 @@ static int TEAM_1 = 1;
 static int TEAM_2 = 2;
 int HALF_TIME = 10; // Half-time duration in seconds
 /*	End constant declaration	*/
-Semaphore* red_score_sem;
-Semaphore* blue_score_sem; 
+ 
 Timer timer;
 
 // Timer handler that calls both ticTac and sched_clk
@@ -76,10 +75,6 @@ void draw_time(EcranBochs* vga,int screen_width, int space_between){
 }
 
 void init_match(EcranBochs* vga){
-	red_score_sem = new Semaphore(1);
-	red_score_sem->P();
-	blue_score_sem = new Semaphore(1);
-	blue_score_sem->P();
 
 	field = new Field( 
         vga,  // Pass the address of the vga object
@@ -93,16 +88,14 @@ void init_match(EcranBochs* vga){
 		zeroB_data,
 		oneB_data,
 		twoB_data,
-		threeB_data,
-		blue_score_sem
+		threeB_data
 	);
 	red_score = new Score(
 		WIDTH/2-(SPRITE_NUMBER_WIDTH+10),10,
 		zeroR_data,
 		oneR_data,
 		twoR_data,
-		threeR_data,
-		red_score_sem
+		threeR_data
 	);
 	player1 = new Player(
 		WIDTH/2-(SPRITE_PLAYER_WIDTH+50), (HEIGHT-SPRITE_PLAYER_HEIGHT)/2, sprite_player_red_right, PLAYER_SPEED,
@@ -195,11 +188,11 @@ extern "C" void Sextant_main(unsigned long magic, unsigned long addr){
 			scorer = 2 - scorer + 1; // invert scoring team after half-time
 		}
 		if (scorer == TEAM_1) {
-			blue_score_sem->V();
+			blue_score->sem->V();
 		}
 
 		if (scorer == TEAM_2) {
-			red_score_sem->V();
+			red_score->sem->V();
 		}
 
 		if (field->outside_field(ball->get_x(), ball->get_y(),ball->BALL_WIDTH,ball->BALL_HEIGHT)) {
