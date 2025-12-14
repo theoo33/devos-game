@@ -45,13 +45,11 @@ void paint_zone(const ZONE& zone, EcranBochs* vga) {
 
 
 Field :: Field(
-    unsigned char* data,
     EcranBochs* vga_entry,
     const ZONE& borders,
     const ZONE& left_goal_zone,
     const ZONE& right_goal_zone
 ) :
-    background_data(data),
     vga(vga_entry)
 {
     // Initialize ZONE members directly

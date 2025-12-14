@@ -18,7 +18,6 @@ typedef struct {
 class Field {
     public:
         Field(
-            unsigned char* background_data,
             EcranBochs* vga_entry,
             const ZONE& borders,
             const ZONE& left_goal,
@@ -29,7 +28,6 @@ class Field {
 
         int width;
         int height;
-        unsigned char* background_data;
         EcranBochs* vga;
         ZONE field;
         ZONE left_goal;
