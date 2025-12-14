@@ -75,3 +75,7 @@ int Timer::getSecondes(){
 	return secondes;
 }
 
+void Timer::reset(){
+    secondes = 0;
+}
+

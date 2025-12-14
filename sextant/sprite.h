@@ -28,5 +28,6 @@ extern unsigned char twoB_data[SPRITE_NUMBER_WIDTH*SPRITE_NUMBER_HEIGHT];
 extern unsigned char twoR_data[SPRITE_NUMBER_WIDTH*SPRITE_NUMBER_HEIGHT];
 extern unsigned char threeB_data[SPRITE_NUMBER_WIDTH*SPRITE_NUMBER_HEIGHT];
 extern unsigned char threeR_data[SPRITE_NUMBER_WIDTH*SPRITE_NUMBER_HEIGHT];
+extern unsigned char scoreBoard_data[246*143];
 
 #endif

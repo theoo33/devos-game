@@ -78,4 +78,9 @@ class EcranBochs {
         void plot_palette(int x, int y, int size);
 
         void plot_sprite(void* buffer, ui16_t width, ui16_t height, ui16_t x, ui16_t y);
+        
+        // Text rendering functions
+        void draw_char(unsigned int x, unsigned int y, char c, ui8_t color, int scale = 1);
+        void draw_string(unsigned int x, unsigned int y, const char* str, ui8_t color, int scale = 1);
+        void draw_number(unsigned int x, unsigned int y, int num, ui8_t color, int scale = 1);
 };

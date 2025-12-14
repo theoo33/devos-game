@@ -17,7 +17,7 @@
 #include <sextant/ordonnancements/preemptif/thread.h>
 #include <sextant/types.h>
 #include <sextant/Synchronisation/Semaphore/Semaphore.h>
-
+#include <sextant/Synchronisation/Mutex/Mutex.h>
 
 #include <hal/pci.h>
 #include <drivers/vga.h>
@@ -28,6 +28,7 @@
 #include <Applications/Football/Ball.h>
 #include <Applications/Football/Field.h>
 #include <Applications/Football/Score.h>
+#include <Applications/Football/HalfManager.h>
 
 extern char __e_kernel,__b_kernel, __b_data, __e_data,  __b_stack, __e_load ;
 int i;
@@ -35,65 +36,106 @@ int i;
 extern vaddr_t bootstrap_stack_bottom; //Adresse de début de la pile d'exécution
 extern size_t bootstrap_stack_size;//Taille de la pile d'exécution
 
+Score* red_score;
+Score* blue_score;
+Player* player1;
+Player* player2;
+Field* field;
+Ball* ball;
+HalfManager* half_manager;
+
+// GAME CONSTANTS
 int FRAME_SKIP = 5;
-Semaphore* score_sem;  // Will be initialized in Sextant_main()
+ui16_t WIDTH = 640, HEIGHT = 400;
+const char PLAYER_SPEED = 1;
+const int BALL_SPEED = 6;
+const int BALL_FRICTION = 1;
+static int TEAM_1 = 1;
+static int TEAM_2 = 2;
+int HALF_TIME = 10; // Half-time duration in seconds
+/*	End constant declaration	*/
+Semaphore* red_score_sem;
+Semaphore* blue_score_sem; 
+Timer timer;
 
-void demo_vga() {
-	set_vga_mode13(); // set VGA mode
-	set_palette_vga(palette_vga); // set to given palette
-
-	ui16_t offset = 0;
-	while(1) {
-		clear_vga_screen(0); // put the color 0 on each pixel
-		plot_square(offset, 50, 25, 4); // plot a square of 25 width at 50,50 of color 4
-		draw_sprite(sprite_door_data, 32, 32, 100,100); // draw the 32x32 sprite at 100,100
-		offset = (offset + 1) % 640;
-	}
+// Timer handler that calls both ticTac and sched_clk
+void timer_handler_combined(int intid) {
+	ticTac(intid);
+	sched_clk(intid);
 }
 
-// void demo_bochs_8() {
-// 	ui16_t WIDTH = 640, HEIGHT = 400;
-// 	EcranBochs vga(WIDTH, HEIGHT, VBE_MODE::_8);
-// 	vga.init();
-// 	vga.clear(0);
-// 	// only usefull in 4 or 8 bits modes
-// 	vga.set_palette(palette_vga);
-// 	vga.plot_palette(0, 0, 25);
-// }
-
-
-// void demo_bochs_32() {
-// 	EcranBochs vga(640, 400, VBE_MODE::_32);
-
-// 	vga.init();
-	
-// 	ui8_t offset = 0;
-// 	while(true) {
+void draw_time(EcranBochs* vga,int screen_width, int space_between){
+	int minutes = timer.getSecondes()/60;
+	int seconds = timer.getSecondes()%60;
+	if (minutes<10) vga->draw_number(screen_width/2-2*space_between,1,0,255,2);
+	vga->draw_number(screen_width/2-space_between,1,minutes,255,2);
+	vga->draw_char(screen_width/2,1,':',255,2);
+	if (seconds<10) vga->draw_number(screen_width/2+space_between,1,0,255,2);
+	vga->draw_number(screen_width/2+2*space_between,1,seconds,255,2);
 		
-// 		for (int y = 0; y < vga.getHeight(); y++) {
-// 			for (int x = 0; x < vga.getWidth(); x++) {
-// 				vga.paint(x, y, 
-// 					(~x << y%3) + offset & y, 
-// 					~offset * (x & ~y), 
-// 					offset | (~y < 2 - x % 16));
-// 			}
-// 		}
-// 		++offset;
-// 	}
-// }
+}
+
+void init_match(EcranBochs* vga){
+	red_score_sem = new Semaphore(1);
+	red_score_sem->P();
+	blue_score_sem = new Semaphore(1);
+	blue_score_sem->P();
+
+	static int TEAM_1 = 1;
+	static int TEAM_2 = 2;
+
+	field = new Field( 
+        vga,  // Pass the address of the vga object
+        ZONE{ 20, 20, WIDTH-20, HEIGHT-20 },
+        ZONE{ 20, 150, 70, 250 },
+		ZONE{ WIDTH - 70, 150, WIDTH - 20, 250 }
+    );
+
+	blue_score = new Score(
+		WIDTH/2+10,10,
+		TEAM_1,
+		blue_score_sem
+	);
+	red_score = new Score(
+		WIDTH/2-(SPRITE_NUMBER_WIDTH+10),10,
+		TEAM_2,
+		red_score_sem
+	);
+	player1 = new Player(
+		WIDTH/2-(SPRITE_PLAYER_WIDTH+50), (HEIGHT-SPRITE_PLAYER_HEIGHT)/2, sprite_player_red_right, PLAYER_SPEED,
+		TEAM_1,
+		vga
+	);
+
+	player2 = new Player(
+		WIDTH/2+50, (HEIGHT-SPRITE_PLAYER_HEIGHT)/2, sprite_data, PLAYER_SPEED,
+		TEAM_2,
+		vga
+	);
+
+	ball = new Ball(
+		(WIDTH-SPRITE_WIDTH)/2, (HEIGHT-SPRITE_HEIGHT)/2, BALL_SPEED, BALL_FRICTION, sprite_ball_data,
+		player1,
+		player2,
+		vga,
+		field
+	);
+	half_manager = new HalfManager(vga);
+
+	/*Start threads*/
+	red_score->start();
+	blue_score->start();
+	player1->start();
+	player2->start();
+	ball->start();
+	half_manager->start();
+
+}
+
 
 extern "C" void Sextant_main(unsigned long magic, unsigned long addr){
 	Ecran ecran;
-	Timer timer;
-	Score* red_score;
-	Score* blue_score;
-	Player* player1;
-	Player* player2;
-	Field* field;
-	Ball* ball;
 	Clavier c;
-	score_sem = new Semaphore(1);  // Initialize the global semaphore
-
 
 	idt_setup();
 	irq_setup();
@@ -116,91 +158,40 @@ extern "C" void Sextant_main(unsigned long magic, unsigned long addr){
 	thread_subsystem_setup(bootstrap_stack_bottom, bootstrap_stack_size);
 	sched_subsystem_setup();
 
-	irq_set_routine(IRQ_TIMER, sched_clk);
+	irq_set_routine(IRQ_TIMER, timer_handler_combined);
 
 	// initialize pci bus to detect GPU address
 	checkBus(0);
-	// demo_vga();
-	// demo_bochs_32();
-	// demo_bochs_8();
 
-	ui16_t WIDTH = 640, HEIGHT = 400;
 	EcranBochs vga(WIDTH, HEIGHT, VBE_MODE::_8);
 	vga.set_palette(palette_vga);
 
-	const char PLAYER_SPEED = 1;
-	const int BALL_SPEED = 6;
-	const int BALL_FRICTION = 1;
-	int FRAME_SKIP = 5;
-
-	// Use static allocation to avoid stack overflow and new[] operator dependency
-	unsigned char background[WIDTH * HEIGHT];
-	for (int i = 0; i < WIDTH * HEIGHT; i++) {
-		background[i] = 0; // Black
-	};
-
-    field = new Field(
-        background, 
-        &vga,  // Pass the address of the vga object
-        ZONE{ 20, 20, WIDTH-20, HEIGHT-20 },
-        ZONE{ 20, 150, 70, 250 },
-		ZONE{ WIDTH - 70, 150, WIDTH - 20, 250 }
-    );
-
-	static int TEAM_1 = 1;
-	red_score = new Score(
-		WIDTH/2-(SPRITE_NUMBER_WIDTH+10),10,
-		TEAM_1
-	);
-	player1 = new Player(
-		field->field.left_upper_x, 
-		field->get_center_y() - SPRITE_PLAYER_HEIGHT / 2, 
-		sprite_player_red_right, PLAYER_SPEED,
-		TEAM_1,
-		&vga
-	);
-
-	static int TEAM_2 = 2;
-	blue_score = new Score(
-		WIDTH/2+10,10,
-		TEAM_2
-	);
-	player2 = new Player(
-		0, 0, sprite_data, PLAYER_SPEED,
-		TEAM_2,
-		&vga
-	);
-
 	vga.init();
+
+	init_match(&vga);
 	
-	player1->start();
-
-	ball = new Ball(
-		field->get_center_x() - SPRITE_BALL_WIDTH / 2, 
-		field->get_center_y() - SPRITE_BALL_HEIGHT / 2, 
-		BALL_SPEED, BALL_FRICTION, sprite_ball_data,
-		player1,
-		player2,
-		&vga,
-		field
-	);
-
-	ball->start();
+	// Track which events have been triggered to avoid multiple signals
+	bool half_time_triggered = false;
+	bool end_match_triggered = false;
+	
 	while (true) {
 		field->paint();
+		// vga.plot_sprite(scoreBoard_data,246,143,WIDTH/2-143,1);
 		// vga.set_palette(palette_numbers);
 		vga.plot_sprite(red_score->show_sprite(),red_score->WIDTH,red_score->HEIGHT,red_score->x,red_score->y);
 		vga.plot_sprite(blue_score->show_sprite(),blue_score->WIDTH,blue_score->HEIGHT,blue_score->x,blue_score->y);
 		// vga.set_palette(palette_vga);
 
 		int scorer = field->has_scored(ball->get_x(), ball->get_y(),ball->BALL_WIDTH,ball->BALL_HEIGHT);
-		if (scorer == TEAM_1) {
-			red_score->increment();
-			score_sem->V();
+		if (half_manager->half_passed) {
+			scorer = 2 - scorer + 1; // invert scoring team after half-time
 		}
+		if (scorer == TEAM_1) {
+			blue_score_sem->V();
+		}
+
 		if (scorer == TEAM_2) {
-			blue_score->increment();
-			score_sem->V();
+			red_score_sem->V();
 		}
 		// Test if ball is outside field
 		if (field->outside_field(ball->get_x(), ball->get_y(), ball->BALL_WIDTH, ball->BALL_HEIGHT)) {
@@ -209,6 +200,35 @@ extern "C" void Sextant_main(unsigned long magic, unsigned long addr){
 			ball->set_speed(0);
 			ball->set_counter(0);
 		}
+
+		if (timer.getSecondes()==HALF_TIME && !half_time_triggered){
+			half_manager->half_time_sem->V();
+			half_time_triggered = true;
+			ball->set_x(WIDTH / 2);
+			ball->set_y(HEIGHT / 2);
+			player1->set_x(WIDTH / 2 + 50);
+			player1->set_y((HEIGHT - SPRITE_PLAYER_HEIGHT) / 2);
+			player2->set_x(WIDTH/2-(SPRITE_PLAYER_WIDTH+50));
+			player2->set_y((HEIGHT - SPRITE_PLAYER_HEIGHT) / 2);
+			red_score->x= WIDTH/2+10;
+			blue_score->x= WIDTH/2-(SPRITE_NUMBER_WIDTH+10);
+		}
+		if ((
+				timer.getSecondes()==2*HALF_TIME||
+				red_score->get_count()==3||
+				blue_score->get_count()==3
+			) 
+			&& !end_match_triggered) {
+			end_match_triggered = true;
+			half_manager->half_time_sem->V();
+
+			// Restart match
+			timer.reset();
+			Sextant_main(0,0);
+		}
+		
+		draw_time(&vga,WIDTH,10);
+
 		thread_yield();
 		vga.swapBuffer();
 	}

@@ -1,19 +1,23 @@
 #include "Score.h"
 #include <sextant/Synchronisation/Semaphore/Semaphore.h>
 
-extern Semaphore* score_sem;
-
 Score::Score(
     int x_pos, 
     int y_pos, 
     int team
+    unsigned char* zero_data,
+    unsigned char* one_data,
+    unsigned char* two_data,
+    unsigned char* three_data,
+    Semaphore* sem
 ) : 
 x(x_pos), 
 y(y_pos), 
 zero_data(zero_data),
 one_data(one_data),
 two_data(two_data),
-three_data(three_data)
+three_data(three_data),
+sem(sem)
 {
     count = 0;
     if (team == 1) {
@@ -31,7 +35,7 @@ three_data(three_data)
 }
 
 void Score::increment(){
-    score_sem->P();
+    sem->P();
     count++;
 }
 
@@ -46,5 +50,12 @@ unsigned char* Score::show_sprite(){
         return two_data;
     case 3:
         return three_data;
+    }
+}
+
+void Score::run() {
+    while(true) {
+        increment();
+        thread_yield(); // Yield to allow other threads to run
     }
 }

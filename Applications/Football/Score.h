@@ -5,14 +5,21 @@
 #include <sextant/types.h>
 #include <sextant/Activite/Threads.h>
 #include <drivers/EcranBochs.h>
+#include <sextant/Synchronisation/Semaphore/Semaphore.h>
 
 class Score : public Threads {
     public:
         Score(
             int x,
             int y,
+            unsigned char* zero_data,
+            unsigned char* one_data,
+            unsigned char* two_data,
+            unsigned char* three_data,
+            Semaphore* sem
             int team
         );
+        void run();
         void increment();
         unsigned char* show_sprite();
         const int HEIGHT = SPRITE_NUMBER_HEIGHT;
@@ -23,7 +30,9 @@ class Score : public Threads {
         unsigned char* three_data;
         int x;
         int y;
+        int get_count(){return count;};
     private:
         int count;
+        Semaphore* sem;
 };
 #endif

@@ -10,6 +10,7 @@
 int Semaphore::sem = 0;
 int Semaphore::lock = 0;
 
+/*Reduces the semaphore value*/
 void Semaphore::P(){
 	mySpinlock.Take(&lock);
 	value=value-1;
@@ -26,6 +27,7 @@ int Semaphore::Valeur(){
 	return value;
 }
 
+/*Increases the semaphore value*/
 void Semaphore::V(){
 	if (value<0) {
 		mySpinlock.Take(&lock);
