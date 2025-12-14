@@ -27,8 +27,8 @@ class Score : public Threads {
         int x;
         int y;
         int get_count(){return count;};
+        Semaphore* sem;
     private:
         int count;
-        Semaphore* sem;
 };
 #endif

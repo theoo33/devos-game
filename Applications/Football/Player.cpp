@@ -6,16 +6,20 @@
 
 extern bool key_pressed[126];
 extern int FRAME_SKIP;
+extern unsigned char sprite_player_red_left[SPRITE_PLAYER_WIDTH*SPRITE_PLAYER_HEIGHT];
+extern unsigned char sprite_player_red_right[SPRITE_PLAYER_WIDTH*SPRITE_PLAYER_HEIGHT];
+extern unsigned char sprite_player_blue_left[SPRITE_PLAYER_WIDTH*SPRITE_PLAYER_HEIGHT];
+extern unsigned char sprite_player_blue_right[SPRITE_PLAYER_WIDTH*SPRITE_PLAYER_HEIGHT];
 
 Player::Player(int x_pos, 
     int y_pos, 
-    unsigned char* data, 
+    char team, 
     int speed, 
     int team,
     EcranBochs* vga_entry) : 
         x(x_pos), 
         y(y_pos), 
-        data(data), 
+        team(team), 
         SPEED(speed),
         vga(vga_entry) 
         {
@@ -24,12 +28,14 @@ Player::Player(int x_pos,
             KEY_DOWN = AZERTY::K_S;
             KEY_LEFT = AZERTY::K_Q;
             KEY_RIGHT = AZERTY::K_D;
+            data = sprite_player_red_right;
         }
         else {
             KEY_UP = AZERTY::K_O;
             KEY_DOWN = AZERTY::K_L;
             KEY_LEFT = AZERTY::K_K;
             KEY_RIGHT = AZERTY::K_M;
+            data = sprite_player_blue_left;
         }
         };
 
@@ -46,7 +52,8 @@ void Player::move(ui16_t WIDTH, ui16_t HEIGHT) {
 	}
     if (key_pressed[Player::KEY_LEFT] ) {
         if (x > 0) x -= SPEED;
-        data = sprite_player_red_left;
+        if (team == 'R') data = sprite_player_red_left;
+        else data = sprite_player_blue_left;
     }
     if (key_pressed[Player::KEY_DOWN]) {
         if(y + PLAYER_HEIGHT + SPEED < HEIGHT)
@@ -55,7 +62,8 @@ void Player::move(ui16_t WIDTH, ui16_t HEIGHT) {
     if (key_pressed[Player::KEY_RIGHT]) {
         if(x + PLAYER_WIDTH + SPEED < WIDTH)
             x += SPEED;
-        data = sprite_player_red_right;
+        if (team == 'R') data = sprite_player_red_right;
+        else data = sprite_player_blue_right;
     }
 }
 

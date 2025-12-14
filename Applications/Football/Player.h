@@ -33,6 +33,7 @@ class Player : public Threads {
     private:
         int x;
         int y;
+        char team;
         unsigned char* data;
         
 };

@@ -52,10 +52,9 @@ const int BALL_SPEED = 6;
 const int BALL_FRICTION = 1;
 static int TEAM_1 = 1;
 static int TEAM_2 = 2;
-int HALF_TIME = 10; // Half-time duration in seconds
+int HALF_TIME = 120; // Half-time duration in seconds
 /*	End constant declaration	*/
-Semaphore* red_score_sem;
-Semaphore* blue_score_sem; 
+ 
 Timer timer;
 
 // Timer handler that calls both ticTac and sched_clk
@@ -191,11 +190,11 @@ extern "C" void Sextant_main(unsigned long magic, unsigned long addr){
 			scorer = 2 - scorer + 1; // invert scoring team after half-time
 		}
 		if (scorer == TEAM_1) {
-			blue_score_sem->V();
+			blue_score->sem->V();
 		}
 
 		if (scorer == TEAM_2) {
-			red_score_sem->V();
+			red_score->sem->V();
 		}
 		// Test if ball is outside field
 		if (field->outside_field(ball->get_x(), ball->get_y(), ball->BALL_WIDTH, ball->BALL_HEIGHT)) {

@@ -12,8 +12,7 @@ y(y_pos),
 zero_data(zero_data),
 one_data(one_data),
 two_data(two_data),
-three_data(three_data),
-sem(sem)
+three_data(three_data)
 {
     count = 0;
     if (team == 1) {
@@ -28,6 +27,8 @@ sem(sem)
         two_data = twoB_data;
         three_data = threeB_data;
     }
+    sem = new Semaphore(1);
+    sem->P();
 }
 
 void Score::increment(){

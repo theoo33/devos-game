@@ -18,6 +18,8 @@ extern unsigned char sprite_door_data[SPRITE_WIDTH*SPRITE_HEIGHT];
 extern unsigned char sprite_ball_data[SPRITE_BALL_WIDTH*SPRITE_BALL_HEIGHT];
 extern unsigned char sprite_player_red_right[SPRITE_PLAYER_WIDTH*SPRITE_PLAYER_HEIGHT];
 extern unsigned char sprite_player_red_left[SPRITE_PLAYER_WIDTH*SPRITE_PLAYER_HEIGHT];
+extern unsigned char sprite_player_blue_right[SPRITE_PLAYER_WIDTH*SPRITE_PLAYER_HEIGHT];
+extern unsigned char sprite_player_blue_left[SPRITE_PLAYER_WIDTH*SPRITE_PLAYER_HEIGHT];
 
 // numbers
 extern unsigned char zeroB_data[SPRITE_NUMBER_WIDTH*SPRITE_NUMBER_HEIGHT];
