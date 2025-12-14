@@ -29,8 +29,9 @@ class Score : public Threads {
         unsigned char* three_data;
         int x;
         int y;
+        int get_count(){return count;};
     private:
-        Semaphore* sem;
         int count;
+        Semaphore* sem;
 };
 #endif

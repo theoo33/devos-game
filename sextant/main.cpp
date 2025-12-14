@@ -191,7 +191,9 @@ extern "C" void Sextant_main(unsigned long magic, unsigned long addr){
 		// vga.set_palette(palette_vga);
 
 		int scorer = field->has_scored(ball->get_x(), ball->get_y(),ball->BALL_WIDTH,ball->BALL_HEIGHT);
-		
+		if (half_manager->half_passed) {
+			scorer = 2 - scorer + 1; // invert scoring team after half-time
+		}
 		if (scorer == TEAM_1) {
 			blue_score_sem->V();
 		}
@@ -217,9 +219,18 @@ extern "C" void Sextant_main(unsigned long magic, unsigned long addr){
 			red_score->x= WIDTH/2+10;
 			blue_score->x= WIDTH/2-(SPRITE_NUMBER_WIDTH+10);
 		}
-		if (timer.getSecondes()==2*HALF_TIME && !end_match_triggered){
+		if ((
+				timer.getSecondes()==2*HALF_TIME||
+				red_score->get_count()==3||
+				blue_score->get_count()==3
+			) 
+			&& !end_match_triggered) {
 			end_match_triggered = true;
 			half_manager->half_time_sem->V();
+
+			// Restart match
+			timer.reset();
+			Sextant_main(0,0);
 		}
 		
 		draw_time(&vga,WIDTH,10);

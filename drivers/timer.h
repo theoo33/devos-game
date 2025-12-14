@@ -46,6 +46,7 @@ class Timer {
 public :
 	sextant_ret_t i8254_set_frequency(unsigned int freq);
 	int getSecondes();
+   void reset();
 };
 
 
