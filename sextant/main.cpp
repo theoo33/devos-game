@@ -75,10 +75,6 @@ void draw_time(EcranBochs* vga,int screen_width, int space_between){
 }
 
 void init_match(EcranBochs* vga){
-	red_score_sem = new Semaphore(1);
-	red_score_sem->P();
-	blue_score_sem = new Semaphore(1);
-	blue_score_sem->P();
 
 	static int TEAM_1 = 1;
 	static int TEAM_2 = 2;
@@ -92,24 +88,22 @@ void init_match(EcranBochs* vga){
 
 	blue_score = new Score(
 		WIDTH/2+10,10,
-		TEAM_1,
-		blue_score_sem
+		TEAM_1
 	);
 
 	red_score = new Score(
 		WIDTH/2-(SPRITE_NUMBER_WIDTH+10),10,
-		TEAM_2,
-		red_score_sem
+		TEAM_2
 	);
 
 	player1 = new Player(
-		WIDTH/2-(SPRITE_PLAYER_WIDTH+50), (HEIGHT-SPRITE_PLAYER_HEIGHT)/2, sprite_player_red_right, PLAYER_SPEED,
+		WIDTH/2-(SPRITE_PLAYER_WIDTH+50), (HEIGHT-SPRITE_PLAYER_HEIGHT)/2, PLAYER_SPEED,
 		TEAM_1,
 		vga
 	);
 
 	player2 = new Player(
-		WIDTH/2+50, (HEIGHT-SPRITE_PLAYER_HEIGHT)/2, sprite_data, PLAYER_SPEED,
+		WIDTH/2+50, (HEIGHT-SPRITE_PLAYER_HEIGHT)/2, PLAYER_SPEED,
 		TEAM_2,
 		vga
 	);

@@ -10,10 +10,9 @@
 class Score : public Threads {
     public:
         Score(
-            int x,
-            int y,
-            int team,
-            Semaphore* sem
+            int x_pos,
+            int y_pos,
+            int team
         );
         void run();
         void increment();

@@ -4,17 +4,14 @@
 Score::Score(
     int x_pos, 
     int y_pos, 
-    int team,
-    Semaphore* sem
+    int team
 ) : 
 x(x_pos), 
-y(y_pos), 
-zero_data(zero_data),
-one_data(one_data),
-two_data(two_data),
-three_data(three_data)
+y(y_pos)
 {
     count = 0;
+    sem = new Semaphore(1);
+    sem->P();
     if (team == 1) {
         zero_data = zeroR_data;
         one_data = oneR_data;
@@ -27,8 +24,6 @@ three_data(three_data)
         two_data = twoB_data;
         three_data = threeB_data;
     }
-    sem = new Semaphore(1);
-    sem->P();
 }
 
 void Score::increment(){

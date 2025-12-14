@@ -13,13 +13,11 @@ extern unsigned char sprite_player_blue_right[SPRITE_PLAYER_WIDTH*SPRITE_PLAYER_
 
 Player::Player(int x_pos, 
     int y_pos, 
-    char team, 
     int speed, 
     int team,
     EcranBochs* vga_entry) : 
         x(x_pos), 
         y(y_pos), 
-        team(team), 
         SPEED(speed),
         vga(vga_entry) 
         {
@@ -52,7 +50,7 @@ void Player::move(ui16_t WIDTH, ui16_t HEIGHT) {
 	}
     if (key_pressed[Player::KEY_LEFT] ) {
         if (x > 0) x -= SPEED;
-        if (team == 'R') data = sprite_player_red_left;
+        if (team == 1) data = sprite_player_red_left;
         else data = sprite_player_blue_left;
     }
     if (key_pressed[Player::KEY_DOWN]) {
@@ -62,7 +60,7 @@ void Player::move(ui16_t WIDTH, ui16_t HEIGHT) {
     if (key_pressed[Player::KEY_RIGHT]) {
         if(x + PLAYER_WIDTH + SPEED < WIDTH)
             x += SPEED;
-        if (team == 'R') data = sprite_player_red_right;
+        if (team == 1) data = sprite_player_red_right;
         else data = sprite_player_blue_right;
     }
 }

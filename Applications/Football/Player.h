@@ -10,7 +10,7 @@
 
 class Player : public Threads {
     public:
-        Player(int x, int y, unsigned char* data, int SPEED, int team, EcranBochs* vga_entry);
+        Player(int x_pos, int y_pos, int SPEED, int team, EcranBochs* vga_entry);
         ui8_t KEY_UP;
         ui8_t KEY_DOWN;
         ui8_t KEY_LEFT;
@@ -33,7 +33,7 @@ class Player : public Threads {
     private:
         int x;
         int y;
-        char team;
+        int team;
         unsigned char* data;
         
 };
