@@ -52,7 +52,7 @@ const int BALL_SPEED = 6;
 const int BALL_FRICTION = 1;
 static int TEAM_1 = 1;
 static int TEAM_2 = 2;
-int HALF_TIME = 10; // Half-time duration in seconds
+int HALF_TIME = 120; // Half-time duration in seconds
 /*	End constant declaration	*/
  
 Timer timer;
