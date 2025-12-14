@@ -102,10 +102,12 @@ void init_match(EcranBochs* vga){
 	);
 
 	ball = new Ball(
-		(WIDTH-SPRITE_BALL_WIDTH)/2, (HEIGHT-SPRITE_BALL_HEIGHT)/2, BALL_SPEED, BALL_FRICTION, sprite_ball_data,
+		(WIDTH-SPRITE_BALL_WIDTH)/2, (HEIGHT-SPRITE_BALL_HEIGHT)/2, 
+		BALL_SPEED, BALL_FRICTION, sprite_ball_data,
 		player1,
 		player2,
-		vga
+		vga,
+		field
 	);
 	half_manager = new HalfManager(vga);
 
@@ -175,18 +177,27 @@ extern "C" void Sextant_main(unsigned long magic, unsigned long addr){
 		}
 		if (scorer == TEAM_1) {
 			blue_score->sem->V();
-		}
-
-		if (scorer == TEAM_2) {
-			red_score->sem->V();
-		}
-
-		if (field->outside_field(ball->get_x(), ball->get_y(),ball->BALL_WIDTH,ball->BALL_HEIGHT)) {
 			ball->set_x(field->get_center_x() - ball->BALL_WIDTH / 2);
 			ball->set_y(field->get_center_y() - ball->BALL_HEIGHT / 2);
 			ball->set_speed(0);
 			ball->set_counter(0);
 		}
+
+		if (scorer == TEAM_2) {
+			red_score->sem->V();
+			ball->set_x(field->get_center_x() - ball->BALL_WIDTH / 2);
+			ball->set_y(field->get_center_y() - ball->BALL_HEIGHT / 2);
+			ball->set_speed(0);
+			ball->set_counter(0);
+		}
+
+	// 	if (field->outside_field_x(ball->get_x(), ball->get_y(),ball->BALL_WIDTH,ball->BALL_HEIGHT)
+	// || field->outside_field_y(ball->get_x(), ball->get_y(),ball->BALL_WIDTH,ball->BALL_HEIGHT)) {
+	// 		ball->set_x(field->get_center_x() - ball->BALL_WIDTH / 2);
+	// 		ball->set_y(field->get_center_y() - ball->BALL_HEIGHT / 2);
+	// 		ball->set_speed(0);
+	// 		ball->set_counter(0);
+		// }
 
 		if (timer.getSecondes()==HALF_TIME && !half_time_triggered){
 			half_manager->half_time_sem->V();

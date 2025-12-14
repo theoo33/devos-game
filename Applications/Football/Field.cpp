@@ -1,5 +1,4 @@
 #include "Field.h"
-#include "Ball.h"
 
 void paint_circle(int x_center, int y_center, int radius, EcranBochs* vga) {
     for (int x = x_center - radius; x < x_center + radius; x++) {
@@ -90,16 +89,12 @@ int Field :: has_scored(int x, int y, int width, int height) {
     return 0;
 }
 
-bool Field :: outside_field(int x, int y, int width, int height) {
-    if (
-        (x < field.left_upper_x) ||
-        (x + width > field.right_lower_x) ||
-        (y < field.left_upper_y) ||
-        (y + height > field.right_lower_y)
-    ) {
-        return true;
-    }
-    return false;
+bool Field :: outside_field_x(int x, int y, int width, int height) {
+    return ((x < field.left_upper_x) || (x + width > field.right_lower_x));
+}
+
+bool Field :: outside_field_y(int x, int y, int width, int height) {
+    return ((y < field.left_upper_y) || (y + height > field.right_lower_y));
 }
 
 void Field :: paint() {

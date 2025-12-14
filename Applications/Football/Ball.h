@@ -26,7 +26,8 @@ class Ball : public Threads {
             unsigned char* data,
             Player* p1,
             Player* p2,
-            EcranBochs* vga
+            EcranBochs* vga,
+            Field* field
         );
 
         int get_x(){ return x; };
@@ -46,26 +47,28 @@ class Ball : public Threads {
         
         Vector movement;
         
-        private:
+    private:
         int x; // position x of ball
         int y; // position y of ball
         int x_diff; // between player and ball at contact time
         int y_diff; // between player and ball at contact time
-        // int x_diff; // x_diff dx (-1, 0 or 1)
-        // int y_diff; // y_diff dy (-1, 0 or 1)
         int towards_x;
         int towards_y;
         int err; 
         int speed; // current ball speed
+        int counter_till_next_speed;
         int acc; // acceleration = max speed
         int friction; // dictates speed deceleration
         int dx; // movement for each iteration
         int dy; // movement for each iteration
-        int counter_till_next_speed;
+        int x_bounce;
+        int y_bounce;
+
         Player* p1;
         Player* p2;
         unsigned char* data = sprite_data;
         EcranBochs* vga;
+        Field* field;
 
         bool isColliding(Player*);
         void bresenhamInit();

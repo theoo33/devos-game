@@ -12,7 +12,8 @@ Ball :: Ball(
     unsigned char* data, 
     Player* p1, 
     Player* p2,
-    EcranBochs* vga_entry
+    EcranBochs* vga_entry,
+    Field* field_entry
 ) :
     x(x),
     y(y),
@@ -23,7 +24,8 @@ Ball :: Ball(
     data(data),
     p1(p1),
     p2(p2),
-    vga(vga_entry)
+    vga(vga_entry),
+    field(field_entry)
 {};
 
 bool Ball :: isColliding(Player* p) {
@@ -55,6 +57,9 @@ void Ball :: bresenhamInit() {
     if (x_diff < 0) x_diff = -x_diff;
     if (y_diff < 0) y_diff = -y_diff;
     err = x_diff - y_diff;
+
+    x_bounce = 1;
+    y_bounce = 1;
 };
 
 void Ball :: bresenhamGetOrientation() {
@@ -75,10 +80,22 @@ void Ball :: bresenhamGetOrientation() {
 
 void Ball :: move() {
     bresenhamGetOrientation();
+    int new_x = x + (towards_x * speed) * x_bounce;
+    int new_y = y + (towards_y * speed) * y_bounce;
+
+    if ((field->outside_field_x(new_x, new_y, BALL_WIDTH, BALL_HEIGHT))
+    && field->has_scored(new_x, new_y, BALL_WIDTH, BALL_HEIGHT) == 0) {
+        x_bounce = -1;
+    }
+
+    if ((field->outside_field_y(new_x, new_y, BALL_WIDTH, BALL_HEIGHT))
+    && field->has_scored(new_x, new_y, BALL_WIDTH, BALL_HEIGHT) == 0) {
+        y_bounce = -1;
+    }
 
     if (counter_till_next_speed > 0) {
-        x = x + (towards_x * speed);
-        y = y + (towards_y * speed);
+        x = new_x;
+        y = new_y;
         counter_till_next_speed -= 1;
     }
     else {

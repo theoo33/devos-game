@@ -23,7 +23,8 @@ class Field {
             const ZONE& right_goal
         );
         int has_scored(int x, int y, int width, int height);
-        bool outside_field(int x, int y, int width, int height);
+        bool outside_field_x(int x, int y, int width, int height);
+        bool outside_field_y(int x, int y, int width, int height);
 
         int width;
         int height;
