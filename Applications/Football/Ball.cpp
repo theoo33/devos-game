@@ -26,12 +26,6 @@ Ball :: Ball(
     vga(vga_entry)
 {};
 
-int Ball :: get_x(){return x;}
-int Ball :: get_y(){return y;}
-unsigned char* Ball :: get_data(){return data;}
-void Ball :: set_x(int new_x){x=new_x;}
-void Ball :: set_y(int new_y){y=new_y;}
-
 bool Ball :: isColliding(Player* p) {
     // first we calculate a possible contact on each side of the ball
     bool contact_left = (
@@ -55,38 +49,15 @@ bool Ball :: isColliding(Player* p) {
     return false;
 }
 
-void Ball :: getOrientation() {
-    // int x_diff = x - p1->get_x();
-    // int y_diff = y - p1->get_y();
+void Ball :: bresenhamInit() {
+    dx = (x_diff > 0) - (x_diff < 0);  // signum : -1, 0 ou 1
+    dy = (y_diff > 0) - (y_diff < 0);
+    if (x_diff < 0) x_diff = -x_diff;
+    if (y_diff < 0) y_diff = -y_diff;
+    err = x_diff - y_diff;
+};
 
-    int x_diff_sign;
-    int y_diff_sign;
-    if (x_diff > 0) x_diff_sign = 1;
-    else x_diff_sign = -1;
-    if (y_diff > 0) y_diff_sign = 1;
-    else y_diff_sign = -1;
-
-    if (
-        ((x_diff * x_diff_sign) <= 2 * (y_diff * y_diff_sign)) 
-        && (3 * (x_diff * x_diff_sign) >= 2 * (y_diff * y_diff_sign))
-    ) {
-        dx = x_diff_sign;
-        dy = y_diff_sign;  
-    }
-    else {
-        if ((x_diff * x_diff_sign) > (y_diff * y_diff_sign)) {
-            dx = x_diff_sign;
-            dy = 0;
-        }
-        else {
-            dx = 0;
-            dy = y_diff_sign;
-        }
-    }
-    
-}
-
-void Ball :: getOrientationBresenham() {
+void Ball :: bresenhamGetOrientation() {
     int e2 = 2 * err;
     towards_x = 0;
     towards_y = 0;
@@ -103,7 +74,7 @@ void Ball :: getOrientationBresenham() {
 
 
 void Ball :: move() {
-    getOrientationBresenham();
+    bresenhamGetOrientation();
 
     if (counter_till_next_speed > 0) {
         x = x + (towards_x * speed);
@@ -131,13 +102,7 @@ void Ball :: run() {
 
                         x_diff = x - p->get_x();
                         y_diff = y - p->get_y();
-                        dx = (x_diff > 0) - (x_diff < 0);  // signum : -1, 0 ou 1
-                        dy = (y_diff > 0) - (y_diff < 0);
-                        if (x_diff < 0) x_diff = -x_diff;
-                        if (y_diff < 0) y_diff = -y_diff;
-                        err = x_diff - y_diff;
-
-                        // getOrientation();
+                        bresenhamInit();
                     }
                 }
             }

@@ -5,7 +5,6 @@
 
 #include <sextant/sprite.h>
 #include <sextant/types.h>
-#include "Ball.h"
 #include <drivers/EcranBochs.h>
 
 typedef struct {
@@ -33,6 +32,14 @@ class Field {
         ZONE left_goal;
         ZONE right_goal;
         void paint();
+
+        int get_center_x(){ return center_x; };
+        int get_center_y(){ return center_y; };
+        
+    private:
+        int center_x;
+        int center_y;
+        
         
 };
 

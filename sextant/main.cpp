@@ -89,40 +89,26 @@ void init_match(EcranBochs* vga){
 		ZONE{ WIDTH - 70, 150, WIDTH - 20, 250 }
     );
 
-	blue_score = new Score(
-		WIDTH/2+10,10,
-		zeroB_data,
-		oneB_data,
-		twoB_data,
-		threeB_data
-	);
 	red_score = new Score(
-		WIDTH/2-(SPRITE_NUMBER_WIDTH+10),10,
-		zeroR_data,
-		oneR_data,
-		twoR_data,
-		threeR_data
+		WIDTH/2-(SPRITE_NUMBER_WIDTH+10),10,TEAM_1
+	);
+	blue_score = new Score(
+		WIDTH/2+10,10,TEAM_2
 	);
 	player1 = new Player(
-		WIDTH/2-(SPRITE_PLAYER_WIDTH+50), (HEIGHT-SPRITE_PLAYER_HEIGHT)/2, 'R', PLAYER_SPEED,
-		AZERTY::K_Z,
-		AZERTY::K_S,
-		AZERTY::K_Q,
-		AZERTY::K_D,
-		vga
+		WIDTH/2-(SPRITE_PLAYER_WIDTH+50), (HEIGHT-SPRITE_PLAYER_HEIGHT)/2, TEAM_1, PLAYER_SPEED,
+		vga,
+		field
 	);
 
 	player2 = new Player(
-		WIDTH/2+50, (HEIGHT-SPRITE_PLAYER_HEIGHT)/2, 'B', PLAYER_SPEED,
-		AZERTY::K_O,
-		AZERTY::K_L,
-		AZERTY::K_K,
-		AZERTY::K_M,
-		vga
+		WIDTH/2+50, (HEIGHT-SPRITE_PLAYER_HEIGHT)/2, TEAM_2, PLAYER_SPEED,
+		vga,
+		field
 	);
 
 	ball = new Ball(
-		(WIDTH-SPRITE_WIDTH)/2, (HEIGHT-SPRITE_HEIGHT)/2, BALL_SPEED, BALL_FRICTION, sprite_ball_data,
+		(WIDTH-SPRITE_BALL_WIDTH)/2, (HEIGHT-SPRITE_BALL_HEIGHT)/2, BALL_SPEED, BALL_FRICTION, sprite_ball_data,
 		player1,
 		player2,
 		vga
@@ -190,6 +176,7 @@ extern "C" void Sextant_main(unsigned long magic, unsigned long addr){
 		if (!music_started) {
 			music_started = true;
 			main_theme(&speaker);
+			timer.reset();
 		}
 		// vga.plot_sprite(scoreBoard_data,246,143,WIDTH/2-143,1);
 		// vga.set_palette(palette_numbers);
@@ -212,22 +199,26 @@ extern "C" void Sextant_main(unsigned long magic, unsigned long addr){
 		}
 
 		if (field->outside_field(ball->get_x(), ball->get_y(),ball->BALL_WIDTH,ball->BALL_HEIGHT)) {
-			ball->set_x(WIDTH / 2);
-			ball->set_y(HEIGHT / 2);
+			ball->set_x(field->get_center_x() - ball->BALL_WIDTH / 2);
+			ball->set_y(field->get_center_y() - ball->BALL_HEIGHT / 2);
+			ball->set_speed(0);
+			ball->set_counter(0);
 		}
 
 		if (timer.getSecondes()==HALF_TIME && !half_time_triggered){
 			half_manager->half_time_sem->V();
 			half_time_triggered = true;
-			speaker.play(1000, 100);  // Half-time alert: 1000Hz for 100ms
-			ball->set_x(WIDTH / 2);
-			ball->set_y(HEIGHT / 2);
-			player1->set_x(WIDTH / 2 + 50);
-			player1->set_y((HEIGHT - SPRITE_PLAYER_HEIGHT) / 2);
-			player2->set_x(WIDTH/2-(SPRITE_PLAYER_WIDTH+50));
-			player2->set_y((HEIGHT - SPRITE_PLAYER_HEIGHT) / 2);
-			red_score->x= WIDTH/2+10;
-			blue_score->x= WIDTH/2-(SPRITE_NUMBER_WIDTH+10);
+			speaker.play(100, 100);
+			speaker.play(500, 100);
+			speaker.play(100, 100);
+			ball->set_x(field->get_center_x() - ball->BALL_WIDTH / 2);
+			ball->set_y(field->get_center_y() - ball->BALL_HEIGHT / 2);
+			player1->set_x(field->get_center_x() + 50);
+			player1->set_y(field->get_center_y() - SPRITE_PLAYER_HEIGHT / 2);
+			player2->set_x(field->get_center_x() - (SPRITE_PLAYER_WIDTH + 50));
+			player2->set_y(field->get_center_y() - SPRITE_PLAYER_HEIGHT / 2);
+			red_score->x= field->get_center_x() +10;
+			blue_score->x= field->get_center_x()-(SPRITE_NUMBER_WIDTH+10);
 		}
 		if ((
 				timer.getSecondes()==2*HALF_TIME||

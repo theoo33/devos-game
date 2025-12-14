@@ -5,18 +5,18 @@
 #include <sextant/types.h>
 #include <sextant/Activite/Threads.h>
 #include <drivers/EcranBochs.h>
+#include "Field.h"
 
 
 
 class Player : public Threads {
     public:
-        Player(int x, int y, char team, int SPEED, ui8_t up, ui8_t down, ui8_t left, ui8_t right, EcranBochs* vga_entry);
+        Player(int x, int y, char team, int SPEED, EcranBochs* vga_entry, Field* field_entry);
         ui8_t KEY_UP;
         ui8_t KEY_DOWN;
         ui8_t KEY_LEFT;
         ui8_t KEY_RIGHT;
         int SPEED;
-        EcranBochs* vga;
         int get_x();
         void set_x(int new_x);
         int get_y();
@@ -24,17 +24,19 @@ class Player : public Threads {
         unsigned char* get_data();
         bool is_any_key_pressed();
         void move(ui16_t WIDTH, ui16_t HEIGHT);
-
+        
         void run();
         
         const int PLAYER_HEIGHT = SPRITE_PLAYER_HEIGHT;
         const int PLAYER_WIDTH = SPRITE_PLAYER_WIDTH;
-
-    private:
+        
+        private:
         int x;
         int y;
         char team;
         unsigned char* data;
+        EcranBochs* vga;
+        Field* field;
         
 };
 

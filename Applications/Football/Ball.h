@@ -15,8 +15,8 @@ typedef struct {
 
 class Ball : public Threads {
     public:
-        const int BALL_HEIGHT = SPRITE_HEIGHT;
-        const int BALL_WIDTH = SPRITE_WIDTH;
+        const int BALL_HEIGHT = SPRITE_BALL_HEIGHT;
+        const int BALL_WIDTH = SPRITE_BALL_WIDTH;
 
         Ball(
             int x, 
@@ -29,11 +29,18 @@ class Ball : public Threads {
             EcranBochs* vga
         );
 
-        int get_x();
-        void set_x(int new_x);
-        int get_y();
-        void set_y(int new_y);
-        unsigned char* get_data();
+        int get_x(){ return x; };
+        void set_x(int new_x) { x = new_x; };
+        int get_y(){ return y; };
+        void set_y(int new_y) { y = new_y; };
+
+        unsigned char* get_data() { return data; };
+
+        int get_speed(){ return speed; };
+        void set_speed(int new_speed){ speed = new_speed; };
+
+        int get_counter(){ return counter_till_next_speed; };
+        void set_counter(int new_counter){ counter_till_next_speed = new_counter; };
         
         void run();
         
@@ -59,9 +66,10 @@ class Ball : public Threads {
         Player* p2;
         unsigned char* data = sprite_data;
         EcranBochs* vga;
+
         bool isColliding(Player*);
-        void getOrientation();
-        void getOrientationBresenham();
+        void bresenhamInit();
+        void bresenhamGetOrientation();
         void move();
 
         
