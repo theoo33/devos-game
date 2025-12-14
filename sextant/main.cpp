@@ -7,6 +7,7 @@
 #include <sextant/interruptions/irq.h>
 #include <sextant/interruptions/handler/handler_tic.h>
 #include <sextant/interruptions/handler/handler_clavier.h>
+#include <sextant/interruptions/handler/handler_speaker.h>
 #include <drivers/timer.h>
 #include <drivers/Clavier.h>
 // TP3
@@ -22,8 +23,10 @@
 #include <hal/pci.h>
 #include <drivers/vga.h>
 #include <drivers/EcranBochs.h>
+#include <drivers/speaker.h>
 
 #include <sextant/sprite.h>
+#include <sextant/music.h>
 #include <Applications/Football/Player.h>
 #include <Applications/Football/Ball.h>
 #include <Applications/Football/Field.h>
@@ -56,10 +59,12 @@ int HALF_TIME = 120; // Half-time duration in seconds
 /*	End constant declaration	*/
  
 Timer timer;
+Speaker speaker;  // Global speaker instance
 
-// Timer handler that calls both ticTac and sched_clk
+// Timer handler that calls ticTac, handler_speaker, and sched_clk
 void timer_handler_combined(int intid) {
 	ticTac(intid);
+	handler_speaker(intid);
 	sched_clk(intid);
 }
 
@@ -75,6 +80,7 @@ void draw_time(EcranBochs* vga,int screen_width, int space_between){
 }
 
 void init_match(EcranBochs* vga){
+	
 
 	field = new Field( 
         vga,  // Pass the address of the vga object
@@ -146,11 +152,12 @@ extern "C" void Sextant_main(unsigned long magic, unsigned long addr){
 
 	thread_subsystem_setup(bootstrap_stack_bottom, bootstrap_stack_size);
 	sched_subsystem_setup();
-
+	
 	irq_set_routine(IRQ_TIMER, timer_handler_combined);
 
 	// initialize pci bus to detect GPU address
 	checkBus(0);
+
 
 	EcranBochs vga(WIDTH, HEIGHT, VBE_MODE::_8);
 	vga.set_palette(palette_vga);
@@ -162,9 +169,17 @@ extern "C" void Sextant_main(unsigned long magic, unsigned long addr){
 	// Track which events have been triggered to avoid multiple signals
 	bool half_time_triggered = false;
 	bool end_match_triggered = false;
+	bool music_started = false;
 	
 	while (true) {
+		// Start music on first iteration
+		
 		field->paint();
+		if (!music_started) {
+			music_started = true;
+			main_theme(&speaker);
+			timer.reset();
+		}
 		// vga.plot_sprite(scoreBoard_data,246,143,WIDTH/2-143,1);
 		// vga.set_palette(palette_numbers);
 		vga.plot_sprite(red_score->show_sprite(),red_score->WIDTH,red_score->HEIGHT,red_score->x,red_score->y);
@@ -177,6 +192,7 @@ extern "C" void Sextant_main(unsigned long magic, unsigned long addr){
 		}
 		if (scorer == TEAM_1) {
 			blue_score->sem->V();
+			speaker.play(400, 100);  // Goal sound: 800Hz for 200ms
 			ball->set_x(field->get_center_x() - ball->BALL_WIDTH / 2);
 			ball->set_y(field->get_center_y() - ball->BALL_HEIGHT / 2);
 			ball->set_speed(0);
@@ -185,6 +201,7 @@ extern "C" void Sextant_main(unsigned long magic, unsigned long addr){
 
 		if (scorer == TEAM_2) {
 			red_score->sem->V();
+			speaker.play(400, 100);  // Goal sound: 800Hz for 200ms
 			ball->set_x(field->get_center_x() - ball->BALL_WIDTH / 2);
 			ball->set_y(field->get_center_y() - ball->BALL_HEIGHT / 2);
 			ball->set_speed(0);
@@ -202,6 +219,9 @@ extern "C" void Sextant_main(unsigned long magic, unsigned long addr){
 		if (timer.getSecondes()==HALF_TIME && !half_time_triggered){
 			half_manager->half_time_sem->V();
 			half_time_triggered = true;
+			speaker.play(100, 100);
+			speaker.play(500, 100);
+			speaker.play(100, 100);
 			ball->set_x(field->get_center_x() - ball->BALL_WIDTH / 2);
 			ball->set_y(field->get_center_y() - ball->BALL_HEIGHT / 2);
 			player1->set_x(field->get_center_x() + 50);
@@ -225,10 +245,10 @@ extern "C" void Sextant_main(unsigned long magic, unsigned long addr){
 			Sextant_main(0,0);
 		}
 		
-		draw_time(&vga,WIDTH,10);
+	draw_time(&vga,WIDTH,10);
 
-		thread_yield();
-		vga.swapBuffer();
+	thread_yield();
+	vga.swapBuffer();
 	}
 
 }

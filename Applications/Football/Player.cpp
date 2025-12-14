@@ -26,13 +26,13 @@ Player::Player(int x_pos,
         field(field_entry)
         {
             if (team == 1) {
-                data = sprite_player_red_right;
+                data = sprite_player_blue_right;
                 KEY_UP = AZERTY::K_Z;
                 KEY_DOWN = AZERTY::K_S;
                 KEY_LEFT = AZERTY::K_Q;
                 KEY_RIGHT = AZERTY::K_D;
             } else {
-                data = sprite_player_blue_left;
+                data = sprite_player_red_left;
                 KEY_UP = AZERTY::K_O;
                 KEY_DOWN = AZERTY::K_L;
                 KEY_LEFT = AZERTY::K_K;
