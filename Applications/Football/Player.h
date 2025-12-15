@@ -26,11 +26,14 @@ class Player : public Threads {
         void move(ui16_t WIDTH, ui16_t HEIGHT);
         
         void run();
+
+        void reset_position(bool second_half);
+        void set_character_direction(bool second_half);
         
         const int PLAYER_HEIGHT = SPRITE_PLAYER_HEIGHT;
         const int PLAYER_WIDTH = SPRITE_PLAYER_WIDTH;
         
-        private:
+    private:
         int x;
         int y;
         char team;

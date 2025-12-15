@@ -76,6 +76,25 @@ void Player::set_y(int new_y) {y=new_y;};
 
 unsigned char* Player::get_data() {return data;};
 
+void Player::reset_position(bool second_half) {
+    y = field->get_center_y() - SPRITE_PLAYER_HEIGHT / 2;
+    if (((team == 1) && !second_half) || ((team == 2) && second_half)) {
+        x = field->get_center_x() - (SPRITE_PLAYER_WIDTH + 50);
+    } else {
+        x = field->get_center_x() + 50;
+    }
+}
+
+void Player::set_character_direction(bool second_half) {
+    if (team == 1) {
+        if (second_half) data = sprite_player_red_left;
+        else data = sprite_player_red_right;
+    } else {
+        if (second_half) data = sprite_player_blue_right;
+        else data = sprite_player_blue_left;
+    }
+}
+
 void Player::run() {
     int frame = 0;
     while (true) {

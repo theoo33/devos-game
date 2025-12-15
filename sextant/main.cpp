@@ -189,12 +189,20 @@ extern "C" void Sextant_main(unsigned long magic, unsigned long addr){
 			blue_score->sem->V();
 			speaker.play(400, 100);  // Goal sound: 800Hz for 200ms
 			ball->reset_position();
+			player1->reset_position(half_time_triggered);
+			player1->set_character_direction(half_time_triggered);
+			player2->reset_position(half_time_triggered);
+			player2->set_character_direction(half_time_triggered);
 		}
 
 		if (scorer == TEAM_2) {
 			red_score->sem->V();
 			speaker.play(400, 100);  // Goal sound: 800Hz for 200ms
 			ball->reset_position();
+			player1->reset_position(half_time_triggered);
+			player2->set_character_direction(half_time_triggered);
+			player2->reset_position(half_time_triggered);
+			player2->set_character_direction(half_time_triggered);
 		}
 
 		// HALF-TIME AND END-MATCH LOGIC
@@ -204,12 +212,11 @@ extern "C" void Sextant_main(unsigned long magic, unsigned long addr){
 			speaker.play(100, 100);
 			speaker.play(500, 100);
 			speaker.play(100, 100);
-			ball->set_x(field->get_center_x() - ball->BALL_WIDTH / 2);
-			ball->set_y(field->get_center_y() - ball->BALL_HEIGHT / 2);
-			player1->set_x(field->get_center_x() + 50);
-			player1->set_y(field->get_center_y() - SPRITE_PLAYER_HEIGHT / 2);
-			player2->set_x(field->get_center_x() - (SPRITE_PLAYER_WIDTH + 50));
-			player2->set_y(field->get_center_y() - SPRITE_PLAYER_HEIGHT / 2);
+			ball->reset_position();
+			player1->reset_position(half_time_triggered);
+			player1->set_character_direction(half_time_triggered);
+			player2->reset_position(half_time_triggered);
+			player2->set_character_direction(half_time_triggered);
 			red_score->x= field->get_center_x() +10;
 			blue_score->x= field->get_center_x()-(SPRITE_NUMBER_WIDTH+10);
 		}
