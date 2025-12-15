@@ -27,36 +27,18 @@
 
 #include <sextant/sprite.h>
 #include <sextant/music.h>
-#include <Applications/Football/Player.h>
-#include <Applications/Football/Ball.h>
-#include <Applications/Football/Field.h>
-#include <Applications/Football/Score.h>
-#include <Applications/Football/HalfManager.h>
+#include <Applications/Football/Game.h>
 
 extern char __e_kernel,__b_kernel, __b_data, __e_data,  __b_stack, __e_load ;
 
 extern vaddr_t bootstrap_stack_bottom; //Adresse de début de la pile d'exécution
 extern size_t bootstrap_stack_size;//Taille de la pile d'exécution
 
-Score* red_score;
-Score* blue_score;
-Player* player1;
-Player* player2;
-Field* field;
-Ball* ball;
-HalfManager* half_manager;
+extern bool key_pressed[126];
 
-/* CONSTANTS */
-int FRAME_SKIP = 5; // to slow down movement
 ui16_t WIDTH = 640, HEIGHT = 400; // screen dimensions
-const char PLAYER_SPEED = 1; // in pixel per frame
-const int BALL_SPEED = 6;
-const int BALL_FRICTION = 1;
-static int TEAM_1 = 1;
-static int TEAM_2 = 2;
-int HALF_TIME = 120; // Half-time duration in seconds
-/*	End constant declaration	*/
- 
+
+Game* game;
 Timer timer;
 Speaker speaker;  // Global speaker instance
 
@@ -65,58 +47,6 @@ void timer_handler_combined(int intid) {
 	ticTac(intid);
 	handler_speaker(intid);
 	sched_clk(intid);
-}
-
-/* TIME DISPLAY */
-void draw_time(EcranBochs* vga,int screen_width, int space_between){
-	int minutes = timer.getSecondes()/60;
-	int seconds = timer.getSecondes()%60;
-	if (minutes<10) vga->draw_number(screen_width/2-2*space_between,1,0,255,2);
-	vga->draw_number(screen_width/2-space_between,1,minutes,255,2);
-	vga->draw_char(screen_width/2,1,':',255,2);
-	if (seconds<10) vga->draw_number(screen_width/2+space_between,1,0,255,2);
-	vga->draw_number(screen_width/2+2*space_between,1,seconds,255,2);	
-}
-
-
-void init_match(EcranBochs* vga){
-
-	field = new Field( 
-        vga,  // Pass the address of the vga object
-        ZONE{ 20, 20, WIDTH-20, HEIGHT-20 },
-        ZONE{ 20, 150, 70, 250 },
-		ZONE{ WIDTH - 70, 150, WIDTH - 20, 250 }
-    );
-
-	red_score = new Score(
-		field->get_center_x()-(SPRITE_NUMBER_WIDTH+10),10,TEAM_1
-	);
-	blue_score = new Score(
-		field->get_center_x()+10,10,TEAM_2
-	);
-	player1 = new Player(
-		field->get_center_x()-(SPRITE_PLAYER_WIDTH+50), field->get_center_y() - SPRITE_PLAYER_HEIGHT/2, 
-		TEAM_1, PLAYER_SPEED, vga, field
-	);
-	player2 = new Player(
-		field->get_center_x()+50, field->get_center_y() - SPRITE_PLAYER_HEIGHT/2, 
-		TEAM_2, PLAYER_SPEED, vga, field
-	);
-	ball = new Ball(
-		field->get_center_x() - SPRITE_BALL_WIDTH/2, field->get_center_y() - SPRITE_BALL_HEIGHT/2, 
-		BALL_SPEED, BALL_FRICTION, sprite_ball_data,
-		player1, player2, vga, field
-	);
-	half_manager = new HalfManager(vga);
-
-	/*Start threads*/
-	red_score->start();
-	blue_score->start();
-	player1->start();
-	player2->start();
-	ball->start();
-	half_manager->start();
-
 }
 
 
@@ -156,88 +86,22 @@ extern "C" void Sextant_main(unsigned long magic, unsigned long addr){
 	vga.set_palette(palette_vga);
 
 	vga.init();
-	init_match(&vga);
-	
-	// Track which events have been triggered to avoid multiple signals
-	bool half_time_triggered = false;
-	bool end_match_triggered = false;
-	bool music_started = false;
+
+	game = new Game(&vga, &timer, &speaker, WIDTH, HEIGHT);
+	game->init_match();
+	game->start();
 	
 	while (true) {
-		
-		field->paint();
-
-		// Start music on first iteration
-		if (!music_started) {
-			music_started = true;
-			// main_theme(&speaker);
-			timer.reset();
-		}
-
-		// vga.plot_sprite(scoreBoard_data,246,143,WIDTH/2-143,1);
-		// vga.set_palette(palette_numbers);
-		// vga.set_palette(palette_vga);
-		vga.plot_sprite(red_score->show_sprite(),red_score->WIDTH,red_score->HEIGHT,red_score->x,red_score->y);
-		vga.plot_sprite(blue_score->show_sprite(),blue_score->WIDTH,blue_score->HEIGHT,blue_score->x,blue_score->y);
-
-		// GOAL LOGIC
-		int scorer = field->has_scored(ball->get_x(), ball->get_y(),ball->BALL_WIDTH,ball->BALL_HEIGHT);
-		if (half_manager->half_passed) {
-			scorer = 2 - scorer + 1; // invert scoring team after half-time
-		}
-		if (scorer == TEAM_1) {
-			blue_score->sem->V();
-			speaker.play(400, 100);  // Goal sound: 800Hz for 200ms
-			ball->reset_position();
-			player1->reset_position(half_time_triggered);
-			player1->set_character_direction(half_time_triggered);
-			player2->reset_position(half_time_triggered);
-			player2->set_character_direction(half_time_triggered);
-		}
-
-		if (scorer == TEAM_2) {
-			red_score->sem->V();
-			speaker.play(400, 100);  // Goal sound: 800Hz for 200ms
-			ball->reset_position();
-			player1->reset_position(half_time_triggered);
-			player2->set_character_direction(half_time_triggered);
-			player2->reset_position(half_time_triggered);
-			player2->set_character_direction(half_time_triggered);
-		}
-
-		// HALF-TIME AND END-MATCH LOGIC
-		if (timer.getSecondes()==HALF_TIME && !half_time_triggered){
-			half_manager->half_time_sem->V();
-			half_time_triggered = true;
-			speaker.play(100, 100);
-			speaker.play(500, 100);
-			speaker.play(100, 100);
-			ball->reset_position();
-			player1->reset_position(half_time_triggered);
-			player1->set_character_direction(half_time_triggered);
-			player2->reset_position(half_time_triggered);
-			player2->set_character_direction(half_time_triggered);
-			red_score->x= field->get_center_x() +10;
-			blue_score->x= field->get_center_x()-(SPRITE_NUMBER_WIDTH+10);
-		}
-		if ((
-				timer.getSecondes()==2*HALF_TIME||
-				red_score->get_count()==3||
-				blue_score->get_count()==3
-			) 
-			&& !end_match_triggered) {
-			end_match_triggered = true;
-			half_manager->half_time_sem->V();
-
-			// Restart match
-			timer.reset();
-			Sextant_main(0,0);
-		}
-		
-	draw_time(&vga,WIDTH,10);
-
-	thread_yield();
-	vga.swapBuffer();
+		// If previous game finished, recreate a fresh instance
+		// if (game->game_finished) {
+		// 	Sextant_main(0,0);
+		// }
+		// if (key_pressed[AZERTY::K_RETURN] && !game->game_started){
+		// 	game->init_match();
+		// 	game->start();
+		// 	game->game_started = true;
+		// }
+		thread_yield();
 	}
 
 }

@@ -15,6 +15,7 @@ class Score : public Threads {
             int team
         );
         void run();
+        void stop() {Exit();};
         void increment();
         unsigned char* show_sprite();
         const int HEIGHT = SPRITE_NUMBER_HEIGHT;

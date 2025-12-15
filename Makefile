@@ -37,7 +37,7 @@ MV = mv -f
 KERNEL_OBJ   = sextant.elf
 
 OBJECTSNAMES= main multiboot fonctionsES irq_wrappers i8259 idt irq Ecran Clavier PortSerie timer random Horloge handler_tic handler_clavier handler_speaker memoire cpu_context_switch cpu_context  \
-thread sched TestAndSet Mutex Spinlock Semaphore Hello Prod Cons Threads InfiniteHello pci vga EcranBochs sprite music Player Ball Field Score HalfManager speaker
+thread sched TestAndSet Mutex Spinlock Semaphore Hello Prod Cons Threads InfiniteHello pci vga EcranBochs sprite music Player Ball Field Score HalfManager speaker Game
 
 
 OBJECTS=$(patsubst %,build/all-o/%.o,$(OBJECTSNAMES))					  		

@@ -44,6 +44,7 @@ class Ball : public Threads {
         void set_counter(int new_counter){ counter_till_next_speed = new_counter; };
         
         void run();
+        void stop() {Exit();};
 
         void reset_position();
         

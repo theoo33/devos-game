@@ -9,6 +9,7 @@ class HalfManager : public Threads {
     public:
         HalfManager(EcranBochs* vga);
         void run();
+        void stop() {Exit();};
         Semaphore* half_time_sem = new Semaphore(1);
         bool half_passed = false;
     private:
