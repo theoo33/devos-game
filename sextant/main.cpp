@@ -26,6 +26,7 @@
 #include <drivers/speaker.h>
 
 #include <sextant/sprite.h>
+#include <sextant/menu.h>
 #include <sextant/music.h>
 #include <Applications/Football/Game.h>
 
@@ -86,21 +87,19 @@ extern "C" void Sextant_main(unsigned long magic, unsigned long addr){
 	vga.set_palette(palette_vga);
 
 	vga.init();
+	vga.plot_sprite( menu_background, GAME_WIDTH, GAME_HEIGHT, 0, 0 );
 
 	game = new Game(&vga, &timer, &speaker, WIDTH, HEIGHT);
-	game->init_match();
-	game->start();
 	
 	while (true) {
-		// If previous game finished, recreate a fresh instance
-		// if (game->game_finished) {
-		// 	Sextant_main(0,0);
-		// }
-		// if (key_pressed[AZERTY::K_RETURN] && !game->game_started){
-		// 	game->init_match();
-		// 	game->start();
-		// 	game->game_started = true;
-		// }
+		if (game->game_finished) {
+			Sextant_main(0,0);
+		}
+		if (key_pressed[AZERTY::K_RETURN] && !game->game_started){
+			game->init_match();
+			game->start();
+			game->game_started = true;
+		}
 		thread_yield();
 	}
 
