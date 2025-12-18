@@ -91,7 +91,15 @@ extern "C" void Sextant_main(unsigned long magic, unsigned long addr){
 
 	game = new Game(&vga, &timer, &speaker, WIDTH, HEIGHT);
 	
+	bool music_started = false;
+
 	while (true) {
+		// Start music on first iteration
+		if (!music_started) {
+			music_started = true;
+			main_theme(&speaker);
+			timer.reset();
+		}
 		if (game->game_finished) {
 			Sextant_main(0,0);
 		}

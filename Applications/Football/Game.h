@@ -30,7 +30,6 @@ class Game : public Threads{
         // Track which events have been triggered to avoid multiple signals
         bool half_time_triggered = false;
         bool end_match_triggered = false;
-        bool music_started = false;
 };
 
 #endif

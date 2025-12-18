@@ -10,6 +10,7 @@
 #include <Applications/Football/Score.h>
 #include <Applications/Football/HalfManager.h>
 
+
 Score* red_score;
 Score* blue_score;
 Player* player1;
@@ -51,7 +52,6 @@ void Game::draw_time(int screen_width, int space_between){
 void Game::init_match() {
     half_time_triggered = false;
     end_match_triggered = false;
-    music_started = false;
 
     // Implementation of match initialization logic goes here
     field = new Field( 
@@ -108,13 +108,6 @@ void Game::run() {
 	while (true) {
 		
 		field->paint();
-
-		// Start music on first iteration
-		if (!music_started) {
-			music_started = true;
-			// main_theme(&speaker);
-			timer->reset();
-		}
 
 		// vga.plot_sprite(scoreBoard_data,246,143,WIDTH/2-143,1);
 		// vga.set_palette(palette_numbers);
